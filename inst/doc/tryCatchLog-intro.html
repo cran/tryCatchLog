@@ -12,14 +12,14 @@
 
 <meta name="author" content="Jürgen Altfeld" />
 
-<meta name="date" content="2018-05-17" />
+<meta name="date" content="2019-03-13" />
 
 <title>Error handling in R with tryCatchLog: Catching, logging, post-mortem analysis</title>
 
 
 
 <style type="text/css">code{white-space: pre;}</style>
-<style type="text/css">
+<style type="text/css" data-origin="pandoc">
 div.sourceCode { overflow-x: auto; }
 table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
   margin: 0; padding: 0; vertical-align: baseline; border: none; }
@@ -55,7 +55,29 @@ code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
 code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
 code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
 code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+
 </style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' || rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
 
 
 
@@ -70,12 +92,12 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Error handling in R with tryCatchLog: Catching, logging, post-mortem analysis</h1>
 <h4 class="author"><em>Jürgen Altfeld</em></h4>
-<h4 class="date"><em>2018-05-17</em></h4>
+<h4 class="date"><em>2019-03-13</em></h4>
 
 
 
 <p>For a slide version of this vignette (e. g. for trainings and presentations) see:</p>
-<p><a href="https://aryoda.github.io/tutorials/tryCatchLog/tryCatchLog-intro.html" class="uri">https://aryoda.github.io/tutorials/tryCatchLog/tryCatchLog-intro.html</a></p>
+<p><a href="https://aryoda.github.io/tutorials/tryCatchLog/tryCatchLog-intro-slides.html" class="uri">https://aryoda.github.io/tutorials/tryCatchLog/tryCatchLog-intro-slides.html</a></p>
 <div id="license-gpl-3" class="section level2">
 <h2>License (GPL-3)</h2>
 <div class="figure">
@@ -89,7 +111,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 </div>
 <div id="overview" class="section level2">
 <h2>Overview</h2>
-<p>This repository provides the source code of an advanced <code>tryCatch</code> function for the programming language <a href="https://www.r-project.org/">R</a> called <code>tryCatchLog</code>.</p>
+<p>The <code>tryCatchLog</code> package provides an advanced <code>tryCatch</code> function for the programming language <a href="https://www.r-project.org/">R</a>.</p>
 <p>The main advantages of the <code>tryCatchLog</code> function over <code>tryCatch</code> are:</p>
 <ul>
 <li><strong>Easy logging</strong> of errors, warnings and messages into a file or console</li>
@@ -722,6 +744,19 @@ test &lt;-<span class="st"> </span><span class="cf">function</span>() {
 
 <span class="kw">tryCatchLog</span>(<span class="kw">source</span>(<span class="st">&quot;your_main_script.R&quot;</span>))</code></pre></div>
 </div>
+<div id="enabling-source-code-references-file-names-and-line-numbers" class="section level2">
+<h2>Enabling source code references (file names and line numbers)</h2>
+<p>To show <strong>file names and line numbers</strong> in the stack trace of the log output:</p>
+<ul>
+<li><p>For R script files</p>
+<p>R does track source code references of scripts only if you set <code>options(keep.source = TRUE)</code> before.</p>
+<p>If you use <code>Rscript</code> to start a non-interactive R script as batch job you have to set this option since it is FALSE by default.</p>
+<p>You can add this option to your <code>.Rprofile</code> file or use a startup R script as stub to set this option</p></li>
+<li><p>For installed packages</p>
+<p>By default, most packages are built without source reference information. Setting the environment variable <code>R_KEEP_PKG_SOURCE=yes</code> before installing a source package will tell R to keep the source references.</p>
+<p>You can also use set <code>{options(keep.source.pkgs = TRUE)</code> before you install a package.</p></li>
+</ul>
+</div>
 <div id="faq" class="section level2">
 <h2>FAQ</h2>
 <p>You can find a FAQ with best practices at:</p>
@@ -737,6 +772,7 @@ test &lt;-<span class="st"> </span><span class="cf">function</span>() {
 <p>Download of these slides: <a href="https://github.com/aryoda/R_trainings" class="uri">https://github.com/aryoda/R_trainings</a></p>
 <p>Project home of the <code>tryCatchLog</code> package: <a href="https://github.com/aryoda/tryCatchLog" class="uri">https://github.com/aryoda/tryCatchLog</a></p>
 <p><a href="http://www.biostat.jhsph.edu/~rpeng/docs/R-debug-tools.pdf" class="uri">http://www.biostat.jhsph.edu/~rpeng/docs/R-debug-tools.pdf</a></p>
+<p><a href="https://journal.r-project.org/archive/2010-2/RJournal_2010-2_Murdoch.pdf" class="uri">https://journal.r-project.org/archive/2010-2/RJournal_2010-2_Murdoch.pdf</a></p>
 </div>
 </div>
 

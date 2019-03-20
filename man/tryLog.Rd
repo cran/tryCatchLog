@@ -6,13 +6,20 @@
 \usage{
 tryLog(expr,
   write.error.dump.file = getOption("tryCatchLog.write.error.dump.file",
-  FALSE), silent.warnings = getOption("tryCatchLog.silent.warnings", FALSE),
-  silent.messages = getOption("tryCatchLog.silent.messages", FALSE))
+  FALSE),
+  write.error.dump.folder = getOption("tryCatchLog.write.error.dump.folder",
+  "."), silent.warnings = getOption("tryCatchLog.silent.warnings",
+  FALSE), silent.messages = getOption("tryCatchLog.silent.messages",
+  FALSE))
 }
 \arguments{
 \item{expr}{expression to be evaluated}
 
-\item{write.error.dump.file}{\code{TRUE}: Saves a dump of the workspace and the call stack named \code{dump_<YYYYMMDD_HHMMSS>.rda}}
+\item{write.error.dump.file}{\code{TRUE}: Saves a dump of the workspace and the call stack named
+\code{dump_<YYYYMMDD>_at_<HHMMSS.sss>_PID_<process id>.rda}.
+This dump file name pattern shall ensure unique file names in parallel processing scenarios.}
+
+\item{write.error.dump.folder}{\code{path}: Saves the dump of the workspace in a specific folder instead of the working directory}
 
 \item{silent.warnings}{\code{TRUE}: Warnings are logged, but not propagated to the caller.\cr
 \code{FALSE}: Warnings are logged and treated according to the global

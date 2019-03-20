@@ -1,21 +1,22 @@
 # Tests are run within the folder "tryCatchLog/tests/testthat".
 # Clean it up at the beginning of a test!
 
-library(futile.logger)
+library(testthat)
 
 
 
 # Silent warnings -------------------------------------------------------------------------------------------------
 
-context("Silent warnings")
-
-# set up test context
-options("tryCatchLog.write.error.dump.file" = FALSE)    # global default setting for all tryCatchLog call params "write.error.dump.file"
-options("tryCatchLog.silent.warnings" = FALSE)
-options("tryCatchLog.silent.messages" = FALSE)
+context("test_silent_warnings.R")
 
 
-flog.threshold("FATAL")                               # suppress logging of errors and warnings to avoid overly output
+
+source("init_unit_test.R")
+
+
+
+# suppress logging of errors and warnings to avoid overly output
+source("disable_logging_output.R")
 
 
 
@@ -82,6 +83,7 @@ test_that("tryCatchLog did throw an error", {
 
 # clean-up test setup ---------------------------------------------------------------------------------------------
 options("tryCatchLog.write.error.dump.file" = FALSE)    # global default setting for all tryCatchLog call params "write.error.dump.file"
+options("tryCatchLog.write.error.dump.folder" = ".")
 options("tryCatchLog.silent.warnings" = FALSE)
 options("tryCatchLog.silent.messages" = FALSE)
 

@@ -1,9 +1,12 @@
 library(testthat)
 library(tryCatchLog)
-# library(futile.logger)
 
 
-context("package loading")
+context("test_load_package.R")
+
+
+
+source("init_unit_test.R")
 
 
 
@@ -31,12 +34,14 @@ test_that("non-existing options are initialized when package is loaded", {
 
   # Unset the options
   options("tryCatchLog.write.error.dump.file" = NULL)
+  options("tryCatchLog.write.error.dump.folder" = ".")
   options("tryCatchLog.silent.warnings"       = NULL)
   options("tryCatchLog.silent.messages"       = NULL)
 
 
 
   expect_null(getOption("tryCatchLog.write.error.dump.file"))
+  expect_equal(getOption("tryCatchLog.write.error.dump.folder"), ".")
   expect_null(getOption("tryCatchLog.silent.warnings"))
   expect_null(getOption("tryCatchLog.silent.messages"))
 
@@ -47,6 +52,7 @@ test_that("non-existing options are initialized when package is loaded", {
 
   # tryCatchLog initializes all non-existing options to FALSE
   expect_false(getOption("tryCatchLog.write.error.dump.file"))
+  expect_equal(getOption("tryCatchLog.write.error.dump.folder"), ".")
   expect_false(getOption("tryCatchLog.silent.warnings"))
   expect_false(getOption("tryCatchLog.silent.messages"))
 
@@ -70,12 +76,14 @@ test_that("existing options are left untouched when package is loaded", {
 
   # Preset the options
   options("tryCatchLog.write.error.dump.file" = TRUE)
+  options("tryCatchLog.write.error.dump.folder" = ".")
   options("tryCatchLog.silent.warnings"       = TRUE)
   options("tryCatchLog.silent.messages"       = TRUE)
 
 
 
   expect_true(getOption("tryCatchLog.write.error.dump.file"))
+  expect_equal(getOption("tryCatchLog.write.error.dump.folder"), ".")
   expect_true(getOption("tryCatchLog.silent.warnings"))
   expect_true(getOption("tryCatchLog.silent.messages"))
 
@@ -85,6 +93,7 @@ test_that("existing options are left untouched when package is loaded", {
 
 
   expect_true(getOption("tryCatchLog.write.error.dump.file"))
+  expect_equal(getOption("tryCatchLog.write.error.dump.folder"), ".")
   expect_true(getOption("tryCatchLog.silent.warnings"))
   expect_true(getOption("tryCatchLog.silent.messages"))
 

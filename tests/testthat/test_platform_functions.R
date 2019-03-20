@@ -1,9 +1,12 @@
 library(testthat)
 library(tryCatchLog)
-# library(futile.logger)
 
 
-context("platform functions")
+context("test_platform_functions.R")
+
+
+
+source("init_unit_test.R")
 
 
 

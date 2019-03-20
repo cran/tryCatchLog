@@ -30,8 +30,9 @@
 #       together with declaring the required packaged in the "Imports" section of the DESCRIPTION file.
 #       Source: https://cran.r-project.org/doc/manuals/R-exts.html#Specifying-imports-and-exports
 
-#' @importFrom futile.logger flog.error flog.warn flog.info
-#' @importFrom utils         dump.frames
+# Imports DISABLED since there is longer an "Imports" dependency on futile.logger (since version 1.1.0):
+# @importFrom futile.logger flog.error flog.warn flog.info
+# @importFrom utils         dump.frames
 # NULL
 
 
@@ -60,6 +61,17 @@
 
   .tryCatchLog.env$newline <- determine.platform.NewLine()
 
+
+  
+  # Decide which logging functions to use
+  if (is.package.available("futile.logger")) {
+    packageStartupMessage("Using futile.logger for logging...")
+    set.logging.functions(futile.logger::flog.error, futile.logger::flog.warn, futile.logger::flog.info)
+  } else {
+    packageStartupMessage("futile.logger not found. Using tryCatchLog-internal functions for logging...")
+    set.logging.functions()    # Default: Activate the package-internal minimal logging functions
+  }
+
 }
 
 
@@ -78,17 +90,19 @@
 
 
   # Create and initialize package options if they do not already exist before loading the package.
-  # To avoid conflicts with other packages the option names use the name as prefix.
-  op <- options()
-  op.devtools <- list(
+  # To avoid conflicts with other packages coincidentally having the same option names
+  # the option names use the package name as prefix.
+  active.options  <- options()
+  default.options <- list(
     tryCatchLog.write.error.dump.file = FALSE,
-    tryCatchLog.silent.warnings     = FALSE,
-    tryCatchLog.silent.messages     = FALSE
+    tryCatchLog.write.error.folder    = ".",
+    tryCatchLog.silent.warnings       = FALSE,
+    tryCatchLog.silent.messages       = FALSE
   )
 
-  toset <- !(names(op.devtools) %in% names(op))  # TRUE for each option that does not yet exist
+  to.set <- !(names(default.options) %in% names(active.options))  # TRUE for each option name that is not set
 
-  if (any(toset)) options(op.devtools[toset])
+  if (any(to.set)) options(default.options[to.set])
 
   invisible()
 }

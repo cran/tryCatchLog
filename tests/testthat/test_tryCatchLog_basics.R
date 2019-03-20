@@ -1,26 +1,20 @@
-# Basic tests of tryCatchLog
-
-# Tests are run within the folder "tryCatchLog/tests/testthat".
-# Clean it up at the beginning of a test!
-
-library(futile.logger)
+library(testthat)
+library(tryCatchLog)
 
 
 
 # Basic tests -----------------------------------------------------------------------------------------------------
 
-context("tryCatchLog basics")
+context("test_tryCatchLog_basics.R")
 
 
 
-# set up test context
-options("tryCatchLog.write.error.dump.file" = FALSE)    # global default setting for all tryCatchLog call params "write.error.dump.file"
-options("tryCatchLog.silent.warnings" = FALSE)
-options("tryCatchLog.silent.messages" = FALSE)
+source("init_unit_test.R")
 
 
 
-flog.threshold("FATAL")                               # suppress logging of errors and warnings to avoid overly output
+# suppress logging of errors and warnings to avoid overly output
+source("disable_logging_output.R")
 
 
 

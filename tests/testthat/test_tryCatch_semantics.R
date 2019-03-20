@@ -3,13 +3,16 @@
 
 library(testthat)
 library(tryCatchLog)
-library(futile.logger)
 
 
 
 # inits -----------------------------------------------------------------------------------------------------------
 
-context("tryCatch semantics")
+context("test_tryCatch_semantics.R")
+
+
+
+source("init_unit_test.R")
 
 
 
@@ -19,14 +22,8 @@ on.exit(options(error = saved.options))
 
 
 
-# set up test context
-options("tryCatchLog.write.error.dump.file" = FALSE)    # global default setting for all tryCatchLog call params "write.error.dump.file"
-options("tryCatchLog.silent.warnings" = FALSE)
-options("tryCatchLog.silent.messages" = FALSE)
-
-
-
-flog.threshold("FATAL")                               # suppress logging of errors and warnings to avoid overly output
+# suppress logging of errors and warnings to avoid overly output
+source("disable_logging_output.R")
 
 
 

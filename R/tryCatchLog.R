@@ -33,7 +33,10 @@
 #'                              All condition handlers are passed to \code{\link{tryCatch}} as is
 #'                              (no filtering, wrapping or changing of semantics).
 #' @param finally               expression to be evaluated at the end
-#' @param write.error.dump.file \code{TRUE}: Saves a dump of the workspace and the call stack named \code{dump_<YYYYMMDD_HHMMSS>.rda}
+#' @param write.error.dump.file \code{TRUE}: Saves a dump of the workspace and the call stack named
+#'                              \code{dump_<YYYYMMDD>_at_<HHMMSS.sss>_PID_<process id>.rda}.
+#'                              This dump file name pattern shall ensure unique file names in parallel processing scenarios.
+#' @param write.error.dump.folder    \code{path}: Saves the dump of the workspace in a specific folder instead of the working directory
 #' @param silent.warnings       \code{TRUE}: Warnings are logged, but not propagated to the caller.\cr
 #'                              \code{FALSE}: Warnings are logged and treated according to the global
 #'                              setting in \code{\link{getOption}("warn")}. See also \code{\link{warning}}.
@@ -45,28 +48,35 @@
 #' @details This function shall overcome some drawbacks of the standard \code{\link{tryCatch}} function.\cr
 #'          For more details see \url{https://github.com/aryoda/tryCatchLog}.
 #'
-#'          Before you call \code{tryCatchLog} for the first time you should initialize the \pkg{futile.logger} first:
+#'          If the package \pkg{futile.logger} is installed it will be used for writing logging output,
+#'          otherwise an internal basic logging output function is used.
+#'
+#'          Before you call \code{tryCatchLog} for the first time you should initialize
+#'          the logging framework you are using (e. g.\pkg{futile.logger} to control
+#'          the log output (log to console or file etc.):
 #'
 #'          \preformatted{  library(futile.logger)
 #'   flog.appender(appender.file("my_app.log"))
 #'   flog.threshold(INFO)    # TRACE, DEBUG, INFO, WARN, ERROR, FATAL}
 #'
-#'          If you don't initialize the \pkg{futile.logger} at all the logging information will be written on the console only.
-#'
-#'          The following conditions are logged using the \pkg{futile.logger} package:
+#'          If you are using the \pkg{futile.logger} package \code{tryCatchLog} calls
+#'          these log functions for the different R conditions to log them:
+#'          
 #'          \enumerate{
-#'          \item error   -> \code{\link{flog.error}}
-#'          \item warning -> \code{\link{flog.warn}}
-#'          \item message -> \code{\link{flog.info}}
+#'          \item error   -> \code{\link[futile.logger]{flog.error}}
+#'          \item warning -> \code{\link[futile.logger]{flog.warn}}
+#'          \item message -> \code{\link[futile.logger]{flog.info}}
 #'          }
 #'
-#'          \strong{`tryCatchLog` does only catch the above conditions, other (user-defined)
-#'          conditions are currently not catched and therefore not logged.}
+#'          \strong{`tryCatchLog` does only log the above conditions, other (user-defined)
+#'          conditions are currently not not logged but can be catched of course
+#'          by passing additional handler functions via the \code{...} argument.}
 #'
 #'          The log contains the call stack with the file names and line numbers (if available).
 #'
-#'          R does track source code references only if you set the option \code{keep.source} to TRUE via
+#'          R does track source code references of scripts only if you set the option \code{keep.source} to TRUE via
 #'          \code{options(keep.source = TRUE)}. Without this option this function cannot enrich source code references.
+#'          
 #'          If you use \command{Rscript} to start a non-interactive R script as batch job you
 #'          have to set this option since it is FALSE by default. You can add this option to your
 #'          \link{.Rprofile} file or use a startup R script that sets this option and sources your
@@ -81,6 +91,10 @@
 #'          that led to the error. The dump contains the workspace and in the variable "last.dump"
 #'          the call stack (\code{\link{sys.frames}}). This feature is very helpful for non-interactive R scripts ("batches").
 #'
+#'          Setting the parameter \code{tryCatchLog.write.error.dump.folder} to a specific path allows to save the dump in a specific folder. 
+#           If the path does not exist, the folder will be created using the recursive \code{dir.create()} function.
+#'          If not set, the dump will be saved in the working directory. 
+#'          
 #'          To start a post-mortem analysis after an error open a new R session and enter:
 #'             \code{load("dump_20161016_164050.rda")   # replace the dump file name with your real file name
 #'             debugger(last.dump)}
@@ -111,9 +125,11 @@
 #'          \code{Rscript -e "options(keep.source = TRUE); source('my_main_function.R')"}
 #'
 #' @seealso \code{\link{tryLog}}, \code{\link{limitedLabels}}, \code{\link{get.pretty.call.stack}},
-#'          \code{\link{getOption}}, \code{\link{last.tryCatchLog.result}}
+#'          \code{\link{getOption}}, \code{\link{last.tryCatchLog.result}},
+#'          \code{\link{set.logging.functions}}
 #'
 #' @references
+#'          \url{http://adv-r.had.co.nz/beyond-exception-handling.html}\cr
 #'          \url{https://stackoverflow.com/questions/39964040/r-catch-errors-and-continue-execution-after-logging-the-stacktrace-no-tracebac}
 #' @examples
 #' tryCatchLog(log(-1))   # logs a warning
@@ -122,9 +138,10 @@ tryCatchLog <- function(expr,
                         # error = function(e) {if (!is.null(getOption("error", stop))) eval(getOption("error", stop)) }, # getOption("error", default = stop),
                         ...,
                         finally = NULL,
-                        write.error.dump.file = getOption("tryCatchLog.write.error.dump.file", FALSE),
-                        silent.warnings = getOption("tryCatchLog.silent.warnings", FALSE),
-                        silent.messages = getOption("tryCatchLog.silent.messages", FALSE)
+                        write.error.dump.file   = getOption("tryCatchLog.write.error.dump.file", FALSE),
+                        write.error.dump.folder = getOption("tryCatchLog.write.error.dump.folder", "."),
+                        silent.warnings         = getOption("tryCatchLog.silent.warnings", FALSE),
+                        silent.messages         = getOption("tryCatchLog.silent.messages", FALSE)
                        )
 {
 
@@ -156,10 +173,17 @@ tryCatchLog <- function(expr,
       # https://bugs.r-project.org/bugzilla/show_bug.cgi?id=17116
       # An enhanced version of "dump.frames" was released in spring 2017 but does still not fulfill the requirements of tryCatchLog:
       # dump.frames(dumpto = dump.file.name, to.file = TRUE, include.GlobalEnv = TRUE)  # test it yourself!
-      dump.file.name <- format(timestamp, format = "dump_%Y%m%d_%H%M%S.rda")   # use %OS3 (= seconds incl. milliseconds) for finer precision
+      # See ?strptime for the available formatting codes...
+      #
+      # Creates a (hopefully) unique dump file name even in case of multiple parallel processes
+      # or multiple sequential errors in the same R process.
+      # Fixes issue #39 by appending fractional seconds (milliseconds) and the process id (PID)
+      # https://github.com/aryoda/tryCatchLog/issues/39
+      # Example dump file name: dump_2019-03-13_at_15-39-33.086_PID_15270.rda
+      dump.file.name  <- paste0(format(timestamp, format = "dump_%Y-%m-%d_at_%H-%M-%OS3"), "_PID_", Sys.getpid(), ".rda")  # %OS3 (= seconds incl. milliseconds)
+      dir.create(path <- write.error.dump.folder, recursive = T, showWarnings = F)
       utils::dump.frames()
-      save.image(file = dump.file.name)
-
+      save.image(file = file.path(write.error.dump.folder, dump.file.name))  # an existing file would be overwritten silently :-()
     }
 
 
@@ -171,9 +195,9 @@ tryCatchLog <- function(expr,
       log.msg <- build.log.output(log.entry)
 
       switch(severity,
-             ERROR = flog.error(log.msg),
-             WARN  = flog.warn(log.msg),
-             INFO  = flog.info(log.msg)
+             ERROR = .tryCatchLog.env$error.log.func(log.msg),  # e. g. futile.logger::flog.error(log.msg),
+             WARN  = .tryCatchLog.env$warn.log.func(log.msg),   # e. g. futile.logger::flog.warn(log.msg),
+             INFO  = .tryCatchLog.env$info.log.func(log.msg)    # e. g. futile.logger::flog.info(log.msg)
       )
 
 
@@ -187,6 +211,14 @@ tryCatchLog <- function(expr,
     # in any case (duplicated condition or not)...
 
 
+        
+    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
+    # Having handled a condition (calling a handler function) in withCallingHandlers does NOT stop it
+    # from propagating to other handlers up the call stack ("bubble up").
+    # This requires to call a "restart" (e. g. a predefined "muffle" [suppress] restart function).
+    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
+    
+    
 
     # Suppresses the warning (logs it only)?
     if (silent.warnings & severity == "WARN") {
