@@ -5,7 +5,25 @@ For the conventions for files NEWS and ChangeLog in the GNU project see
 https://www.gnu.org/prep/standards/standards.html#Documentation
 -->
 
-## Version 1.1.2 (March 13, 2019)
+## Version 1.1.4 (March 25, 2019) HOTFIX for CRAN
+
+* Fixes the issue #41: Error when the `tryCatchLog` package was not attached first using `library` or `depends` (https://github.com/aryoda/tryCatchLog/issues/41)
+* Added simple unit test for issue #41
+* Restructured some unit tests since `testthat` with `devtools` has a known limitation required
+  by some tests: "Can't detach package in tests"
+  (https://github.com/r-lib/devtools/issues/1797)
+* Removed german umlaut from the `DESCRIPTION` file to keep it ASCII-only
+  (required due to a new note produced by the winbuilder service)
+
+
+
+## Version 1.1.3 (March 21, 2019) HOTFIX (github only)
+
+* Release candidate to fix issue #41: Error when the `tryCatchLog` package was not attached first using `library` or `depends`
+
+
+
+## Version 1.1.2 (March 13, 2019) - published at CRAN (March 20, 2019)
 
 * Fixed issue #39: Dump files may be overwritten when multiple errors occur at the same second
   in the same or parallel processes. See: https://github.com/aryoda/tryCatchLog/issues/39
