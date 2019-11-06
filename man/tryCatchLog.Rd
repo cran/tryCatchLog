@@ -10,7 +10,11 @@ tryCatchLog(expr, ..., finally = NULL,
   write.error.dump.folder = getOption("tryCatchLog.write.error.dump.folder",
   "."), silent.warnings = getOption("tryCatchLog.silent.warnings",
   FALSE), silent.messages = getOption("tryCatchLog.silent.messages",
-  FALSE))
+  FALSE),
+  include.full.call.stack = getOption("tryCatchLog.include.full.call.stack",
+  TRUE),
+  include.compact.call.stack = getOption("tryCatchLog.include.compact.call.stack",
+  TRUE))
 }
 \arguments{
 \item{expr}{expression to be evaluated}
@@ -29,12 +33,24 @@ This dump file name pattern shall ensure unique file names in parallel processin
 
 \item{write.error.dump.folder}{\code{path}: Saves the dump of the workspace in a specific folder instead of the working directory}
 
-\item{silent.warnings}{\code{TRUE}: Warnings are logged, but not propagated to the caller.\cr
+\item{silent.warnings}{\code{TRUE}: Warnings are logged only, but not propagated to the caller.\cr
 \code{FALSE}: Warnings are logged and treated according to the global
 setting in \code{\link{getOption}("warn")}. See also \code{\link{warning}}.}
 
 \item{silent.messages}{\code{TRUE}: Messages are logged, but not propagated to the caller.\cr
 \code{FALSE}: Messages are logged and propagated to the caller.}
+
+\item{include.full.call.stack}{Flag of type \code{\link{logical}}:
+Shall the full call stack be included in the log output? Since the full
+call stack may be very long and the compact call stack has enough details
+normally the full call stack can be omitted by passing \code{FALSE}.
+The default value can be changed globally by setting the option \code{tryCatchLog.include.full.call.stack}.}
+
+\item{include.compact.call.stack}{Flag of type \code{\link{logical}}:
+Shall the compact call stack (including only calls with source code references)
+be included in the log output? Note: If you ommit both the full and compact
+call stacks the message text will be output without call stacks.
+The default value can be changed globally by setting the option \code{tryCatchLog.include.compact.call.stack}.}
 }
 \value{
 the value of the expression passed in as parameter "expr"
@@ -64,7 +80,7 @@ This function shall overcome some drawbacks of the standard \code{\link{tryCatch
 
          If you are using the \pkg{futile.logger} package \code{tryCatchLog} calls
          these log functions for the different R conditions to log them:
-         
+
          \enumerate{
          \item error   -> \code{\link[futile.logger]{flog.error}}
          \item warning -> \code{\link[futile.logger]{flog.warn}}
@@ -79,7 +95,7 @@ This function shall overcome some drawbacks of the standard \code{\link{tryCatch
 
          R does track source code references of scripts only if you set the option \code{keep.source} to TRUE via
          \code{options(keep.source = TRUE)}. Without this option this function cannot enrich source code references.
-         
+
          If you use \command{Rscript} to start a non-interactive R script as batch job you
          have to set this option since it is FALSE by default. You can add this option to your
          \link{.Rprofile} file or use a startup R script that sets this option and sources your
@@ -94,9 +110,9 @@ This function shall overcome some drawbacks of the standard \code{\link{tryCatch
          that led to the error. The dump contains the workspace and in the variable "last.dump"
          the call stack (\code{\link{sys.frames}}). This feature is very helpful for non-interactive R scripts ("batches").
 
-         Setting the parameter \code{tryCatchLog.write.error.dump.folder} to a specific path allows to save the dump in a specific folder. 
-         If not set, the dump will be saved in the working directory. 
-         
+         Setting the parameter \code{tryCatchLog.write.error.dump.folder} to a specific path allows to save the dump in a specific folder.
+         If not set, the dump will be saved in the working directory.
+
          To start a post-mortem analysis after an error open a new R session and enter:
             \code{load("dump_20161016_164050.rda")   # replace the dump file name with your real file name
             debugger(last.dump)}

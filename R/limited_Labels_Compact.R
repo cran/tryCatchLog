@@ -29,7 +29,9 @@
 #' @param maxwidth Maximum number of characters per call in the return value (longer strings will be cutted).
 #'                 Must be between 40 and 1000
 #'
-#' @return         A list of strings (one for each call)
+#' @return         A list of strings (one for each call).
+#'                 If \code{compact} is \code{TRUE} at the last call is returned even if it does not contain
+#'                 a source code reference.
 #'
 #' @details        R does track source code references only if you set the option "keep.source" to TRUE via
 #'                 \code{options(keep.source = TRUE)}. Without this option this function cannot enrich source code references.
@@ -48,14 +50,13 @@
 #' @examples
 #' limitedLabelsCompact(sys.calls(), TRUE)
 #' @export
-limitedLabelsCompact <- function(value, compact = FALSE, maxwidth = getOption("width") - 5L)
-{
+limitedLabelsCompact <- function(value, compact = FALSE, maxwidth = getOption("width") - 5L) {
+
   # create vector of source references (file and row numbers) for each call item of the stack
-  srcrefs <- sapply(value, function(v)
-  {
-    srcref <- attr(v,"srcref")
-    if (!is.null(srcref))
-    {
+  srcrefs <- sapply(value, function(v) {
+
+    srcref <- attr(v, "srcref")
+    if (!is.null(srcref)) {
       srcfile <- attr(srcref, "srcfile")
       paste0(basename(srcfile$filename), "#", srcref[1L], ": ")
     }
@@ -77,8 +78,7 @@ limitedLabelsCompact <- function(value, compact = FALSE, maxwidth = getOption("w
   maxwidth <- min(maxwidth, 1000L)
   value <- strtrim(value, maxwidth)
 
-  if (compact == TRUE)
-  {
+  if (compact == TRUE) {
     # return only call stack items that contain a source reference
     srcrefs.available <- srcrefs != ""
     srcrefs.available[1] <- TRUE          # always return the first row!

@@ -5,6 +5,39 @@ For the conventions for files NEWS and ChangeLog in the GNU project see
 https://www.gnu.org/prep/standards/standards.html#Documentation
 -->
 
+## Version 1.1.6 (Nov 6, 2019)
+
+* CRAN release version (with fixed broken unit test that caused this
+  package to be removed from CRAN three weeks ago)
+* Fixed CRAN submission finding:
+
+> Thanks, we see:
+>
+>   Found the following (possibly) invalid file URIs:
+>     URI: LICENSE
+>       From: inst/doc/tryCatchLog-intro.html
+>     URI: cond
+>       From: NEWS.md
+>
+> Please include the files in the correct directories or link to documents 
+> via fully specified URLs.
+
+
+
+## Version 1.1.5 (Sept 30, 2019)
+
+* Implemented feature request #44: Support configurable suppression of compact and full stack trace
+  (https://github.com/aryoda/tryCatchLog/issues/44).
+  `tryCatchLog` and `tryCatch` now have two additional arguments named
+  `include.full.call.stack` and `include.compact.call.stack` which can also be configured globally
+  via options.
+* Also closes (rejects) #5 (suppress empty compact stack trace) and implements #25 (add option for include.full.call.stack).
+* **API breaking change:** The function `build.log.output` has a new argument `include.compact.call.stack`
+  at the 3rd position   which breaks the old interface
+  (only if the caller has passed subsequent arguments by position instead of using using the names).
+  
+
+
 ## Version 1.1.4 (March 25, 2019) HOTFIX for CRAN
 
 * Fixes the issue #41: Error when the `tryCatchLog` package was not attached first using `library` or `depends` (https://github.com/aryoda/tryCatchLog/issues/41)
@@ -161,7 +194,7 @@ https://www.gnu.org/prep/standards/standards.html#Documentation
 ## Version 0.9.5 (Nov. 18, 2017)
 
 * Added: Function `last.tryCatchLog.log` to retrieve the log output of the call of `tryLog` or `tryCatchLog`
-* Fixed bug #17: tryCatchLog throws: Error in value[[3L]](cond) : unused argument (cond)
+* Fixed bug #17: tryCatchLog throws: Error in value`[[3L]](cond)` : unused argument (cond)
 * NULL as value for error argument throws an explicit error (instead of an implicit deep down in R)
 * Improved: Documentation
 
