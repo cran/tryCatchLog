@@ -4,28 +4,40 @@
 \alias{tryCatchLog}
 \title{Try an expression with condition logging and error handling}
 \usage{
-tryCatchLog(expr, ..., finally = NULL,
-  write.error.dump.file = getOption("tryCatchLog.write.error.dump.file",
-  FALSE),
-  write.error.dump.folder = getOption("tryCatchLog.write.error.dump.folder",
-  "."), silent.warnings = getOption("tryCatchLog.silent.warnings",
-  FALSE), silent.messages = getOption("tryCatchLog.silent.messages",
-  FALSE),
-  include.full.call.stack = getOption("tryCatchLog.include.full.call.stack",
-  TRUE),
+tryCatchLog(
+  expr,
+  ...,
+  execution.context.msg = "",
+  finally = NULL,
+  write.error.dump.file = getOption("tryCatchLog.write.error.dump.file", FALSE),
+  write.error.dump.folder = getOption("tryCatchLog.write.error.dump.folder", "."),
+  silent.warnings = getOption("tryCatchLog.silent.warnings", FALSE),
+  silent.messages = getOption("tryCatchLog.silent.messages", FALSE),
+  include.full.call.stack = getOption("tryCatchLog.include.full.call.stack", TRUE),
   include.compact.call.stack = getOption("tryCatchLog.include.compact.call.stack",
-  TRUE))
+    TRUE)
+)
 }
 \arguments{
-\item{expr}{expression to be evaluated}
+\item{expr}{R expression to be evaluated}
 
 \item{...}{condition handler functions (as in \code{\link{tryCatch}}).
-Usual condition names are
+The following condition names are mainly used in R:
 \code{error}, \code{warning}, \code{message} and \code{interrupt}.
+A handler for user-defined conditions can be established for the
+generic \code{condition} super class.
 All condition handlers are passed to \code{\link{tryCatch}} as is
 (no filtering, wrapping or changing of semantics).}
 
-\item{finally}{expression to be evaluated at the end}
+\item{execution.context.msg}{a text identifier (eg. the PID or a variable value) that will be added to msg.text
+for catched conditions. This makes it easier to identify the runtime state that caused
+a condition esp. in parallel execution scenarios.
+The value must be of length 1 and will be coerced to character.
+Expressions are not allowed.
+The added output has the form: \code{{execution.context.msg: your_value}}}
+
+\item{finally}{expression to be evaluated at the end (after executing the expressiond
+and calling the matching handler).}
 
 \item{write.error.dump.file}{\code{TRUE}: Saves a dump of the workspace and the call stack named
 \code{dump_<YYYYMMDD>_at_<HHMMSS.sss>_PID_<process id>.rda}.
@@ -44,25 +56,30 @@ setting in \code{\link{getOption}("warn")}. See also \code{\link{warning}}.}
 Shall the full call stack be included in the log output? Since the full
 call stack may be very long and the compact call stack has enough details
 normally the full call stack can be omitted by passing \code{FALSE}.
-The default value can be changed globally by setting the option \code{tryCatchLog.include.full.call.stack}.}
+The default value can be changed globally by setting the option \code{tryCatchLog.include.full.call.stack}.
+The full call stack can always be found via \code{\link{last.tryCatchLog.result}}.}
 
 \item{include.compact.call.stack}{Flag of type \code{\link{logical}}:
 Shall the compact call stack (including only calls with source code references)
 be included in the log output? Note: If you ommit both the full and compact
 call stacks the message text will be output without call stacks.
-The default value can be changed globally by setting the option \code{tryCatchLog.include.compact.call.stack}.}
+The default value can be changed globally by setting the option \code{tryCatchLog.include.compact.call.stack}.
+The compact call stack can always be found via \code{\link{last.tryCatchLog.result}}.}
 }
 \value{
 the value of the expression passed in as parameter "expr"
 }
 \description{
-This function evaluates an expression passed in the \code{expr} parameter and executes
-the error handler function passed as parameter \code{error} in case of an error condition.
+This function evaluates an expression passed in the \code{expr} parameter,
+logs all conditions and executes the condition handlers passed in \code{...} (if any).
 }
 \details{
 The \code{finally} expression is then always evaluated at the end.
 
-Conditions are logged with the function call stack (including file names and line numbers).
+Condition handlers work as in base R's \code{\link{tryCatch}}.
+
+Conditions are also logged including the function call stack
+with file names and line numbers (if available).
 
 This function shall overcome some drawbacks of the standard \code{\link{tryCatch}} function.\cr
          For more details see \url{https://github.com/aryoda/tryCatchLog}.
@@ -82,14 +99,16 @@ This function shall overcome some drawbacks of the standard \code{\link{tryCatch
          these log functions for the different R conditions to log them:
 
          \enumerate{
-         \item error   -> \code{\link[futile.logger]{flog.error}}
-         \item warning -> \code{\link[futile.logger]{flog.warn}}
-         \item message -> \code{\link[futile.logger]{flog.info}}
+         \item error     -> \code{\link[futile.logger]{flog.error}}
+         \item warning   -> \code{\link[futile.logger]{flog.warn}}
+         \item message   -> \code{\link[futile.logger]{flog.info}}
+         \item interrupt -> \code{\link[futile.logger]{flog.info}}
          }
 
-         \strong{`tryCatchLog` does only log the above conditions, other (user-defined)
-         conditions are currently not not logged but can be catched of course
-         by passing additional handler functions via the \code{...} argument.}
+         \strong{`tryCatchLog` does log all conditions (incl. user-defined conditions).}
+
+         Since the interrupt condition does not have an error message attribute \code{tryCatchLog}
+         uses "User-requested interrupt" as message in the logs.
 
          The log contains the call stack with the file names and line numbers (if available).
 
@@ -145,7 +164,21 @@ This function shall overcome some drawbacks of the standard \code{\link{tryCatch
 }
 
 \examples{
-tryCatchLog(log(-1))   # logs a warning
+tryCatchLog(log(-1))   # logs a warning (logarithm of a negative number is not possible)
+tryLog(log(-1), execution.context.msg = Sys.getpid())
+
+# set and unset an option
+options("tryCatchLog.write.error.dump.folder" = "my_log")
+options("tryCatchLog.write.error.dump.folder" = NULL)
+
+\dontrun{
+# Use case for "execution.context.msg" argument: Loops and parallel execution
+library(foreach)       # support parallel execution (requires an parallel execution plan)
+options(tryCatchLog.include.full.call.stack = FALSE) # reduce the ouput for demo purposes
+res <- foreach(i = 1:12) \%dopar\% {
+         tryCatchLog(log(10 - i), execution.context.msg = i)
+}
+}
 }
 \references{
 \url{http://adv-r.had.co.nz/beyond-exception-handling.html}\cr
@@ -153,6 +186,7 @@ tryCatchLog(log(-1))   # logs a warning
 }
 \seealso{
 \code{\link{tryLog}}, \code{\link{limitedLabels}}, \code{\link{get.pretty.call.stack}},
-         \code{\link{getOption}}, \code{\link{last.tryCatchLog.result}},
-         \code{\link{set.logging.functions}}
+         \code{\link{last.tryCatchLog.result}}, \code{\link{set.logging.functions}},
+         \code{\link{tryCatch}}, \code{\link{withCallingHandlers}}, \code{\link{signalCondition}},
+         \code{\link{getOption}}
 }

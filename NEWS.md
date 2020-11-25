@@ -5,6 +5,55 @@ For the conventions for files NEWS and ChangeLog in the GNU project see
 https://www.gnu.org/prep/standards/standards.html#Documentation
 -->
 
+## Version 1.2.1 (Nov. 24, 2020) for CRAN
+
+* Fix redirected links found by CRAN precheck:
+  * Found the following (possibly) invalid URLs:
+    URL: https://www.rstudio.com/products/rstudio/ (moved to https://rstudio.com/products/rstudio/)
+    From: inst/doc/tryCatchLog-intro.html
+* Checked all links in the vignette Rmds and replaced them with the new URL found by the Firefox 
+
+
+## Version 1.2.0 (Nov 23, 2020) for CRAN
+
+* CRAN release version
+* Fix r-devel finding "Found the following (possibly) invalid URLs" caused by http to https redirection
+* Fix bug #60: sprintf warnings in R-devel (CRAN check)
+  * https://github.com/aryoda/tryCatchLog/issues/60
+
+## Version 1.1.8 (April 20, 2020)
+
+* Implemented feature requests #14 and #45: Support logging of all conditions (incl. user-defined conditions).
+  * Interrupt conditions are logged with the message "User-requested interrupt"
+    even though R does not deliver a message.  (incl. user-defined and interrupt)
+  * https://github.com/aryoda/tryCatchLog/issues/14
+  * https://github.com/aryoda/tryCatchLog/issues/45
+* Fixed bug #55: Duplicated error dump files in nested tryCatchLog calls
+  * https://github.com/aryoda/tryCatchLog/issues/55
+
+## Version 1.1.7 (April 6, 2020)
+
+* Implemented feature request #52: Add runtime context information to conditions
+  (https://github.com/aryoda/tryCatchLog/issues/52)
+
+  Added the argument `execution.context.msg` to the `tryCatchLog` and `try` functions
+  to support an text identifier (eg. the PID or a variable value) that will be added to msg.text
+  for catched conditions. This makes it easier to identify the runtime state that caused
+  a condition esp. in parallel execution scenarios.
+  
+  Idea and core implementation contributed by user '1beb'
+  via pull request #53 (https://github.com/aryoda/tryCatchLog/pull/53).
+  THX!
+  
+  **Note:** In `tryLog` the new argument was added at the end to keep the function signature
+        compatible to existing code. In `tryCatchLog` the new argument was added as 3rd
+        argument to make it more visible. The signature is still compatible since it follows
+        the `...` argument which requires all subsequent arguments to be named in calls.
+* Fixed bug: `last.tryCatchLog.result()` has sometimes not been reset in case of an internal error
+  so that the result of the previous `tryCatchLog` or `tryLog` call was returned (no issue number).
+  
+  
+
 ## Version 1.1.6 (Nov 6, 2019)
 
 * CRAN release version (with fixed broken unit test that caused this
@@ -28,6 +77,7 @@ https://www.gnu.org/prep/standards/standards.html#Documentation
 
 * Implemented feature request #44: Support configurable suppression of compact and full stack trace
   (https://github.com/aryoda/tryCatchLog/issues/44).
+  
   `tryCatchLog` and `tryCatch` now have two additional arguments named
   `include.full.call.stack` and `include.compact.call.stack` which can also be configured globally
   via options.

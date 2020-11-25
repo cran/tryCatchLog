@@ -26,7 +26,7 @@
 #'         \item{full.stack.trace}
 #'         }
 #'
-#' @note  Required function to fix issue # 18
+#' @note  Required function to fix issue #18
 #'        (\url{https://github.com/aryoda/tryCatchLog/issues/18})
 #'
 #' @param log.entry  A \code{data.frame} with the new log entry (exactly one row)

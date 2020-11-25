@@ -21,7 +21,7 @@ The \code{log.entry} is checked against the existing log entries from
         }
 }
 \note{
-Required function to fix issue # 18
+Required function to fix issue #18
        (\url{https://github.com/aryoda/tryCatchLog/issues/18})
 }
 \seealso{

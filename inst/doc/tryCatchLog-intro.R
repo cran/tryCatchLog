@@ -1,26 +1,26 @@
-## ----setup, include=FALSE------------------------------------------------
+## ----setup, include=FALSE-----------------------------------------------------
 # knitr::opts_chunk$set(echo = TRUE, error = TRUE)  # render R errors as output instead of stopping to knit
 
-## ---- error = TRUE-------------------------------------------------------
+## ---- error = TRUE------------------------------------------------------------
 log("text")   # calculating the logarithm of a string throws an error
 
-## ---- results='hold'-----------------------------------------------------
+## ---- results='hold'----------------------------------------------------------
 log(-1)                # logarithm of a negative number throws a warning
 
-## ---- error = TRUE-------------------------------------------------------
+## ---- error = TRUE------------------------------------------------------------
 if (1 != 2)
   stop("something is wrong")
 
-## ---- error = TRUE-------------------------------------------------------
+## ---- error = TRUE------------------------------------------------------------
 stopifnot(1 == 2)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 warning("bad weather today, don't forget your umbrella")
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 message("good morning")
 
-## ---- error = TRUE, eval = TRUE------------------------------------------
+## ---- error = TRUE, eval = TRUE-----------------------------------------------
 options(error = NULL)  # switch to default behaviour of pure R
 
 test <- function() {
@@ -30,27 +30,27 @@ test <- function() {
 
 test()     # throws an error
 
-## ---- error = TRUE, collapse = FALSE, eval = TRUE------------------------
+## ---- error = TRUE, collapse = FALSE, eval = TRUE-----------------------------
 try(log("not a number"), silent = TRUE)
 print("errors can't stop me")
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 an.error.occured <- FALSE
 tryCatch( { result <- log("not a number"); print(res) }
           , error = function(e) {an.error.occured <<- TRUE})
 print(an.error.occured)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 tryCatch( { result <- log(-1); print(result) }
           , warning = function(w) { print("Hey, a warning") })
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 last.message <- NULL
 tryCatch( { message("please handle me"); print("Done") }
           , message = function(m) { last.message <<- m })
 print(last.message$message)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 condition <- function(subclass, message, call = sys.call(-1), ...) {
   structure( class = c(subclass, "condition"),
              list(message = message, call = call, ...))
@@ -60,7 +60,7 @@ tryCatch( { work <- condition("my.work.condition", "after work party")
             signalCondition(work); print("Done") }
           , my.work.condition = function(c) { print(c$message) })
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 { # required to execute the code as one block to summarize the output in this Rmd
   f <- function() {
     warning("deprecated function called")
@@ -70,11 +70,11 @@ tryCatch( { work <- condition("my.work.condition", "after work party")
   print("Done")
 }
 
-## ---- echo=FALSE---------------------------------------------------------
+## ---- echo=FALSE--------------------------------------------------------------
 # dummy code to avoid a "missing function" error in the next code junk
 write.to.log <- function(msg) { invisible() }
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 f <- function() {
   warning("deprecated function called")
   print("Hello world")
@@ -82,7 +82,7 @@ f <- function() {
 tryCatch(f(), warning = function(w) { write.to.log(w) })
 print("Done")
 
-## ---- error = TRUE, eval = FALSE-----------------------------------------
+## ---- error = TRUE, eval = FALSE----------------------------------------------
 #  options(error=function() traceback(2)) # http://stackoverflow.com/a/13119318/4468078
 #  f <- function() {
 #    log("not a number")
@@ -90,7 +90,7 @@ print("Done")
 #  }
 #  f()
 
-## ---- eval = FALSE-------------------------------------------------------
+## ---- eval = FALSE------------------------------------------------------------
 #  Error in log("not a number") :
 #    non-numeric argument to mathematical function
 #  6: (function ()
@@ -99,14 +99,14 @@ print("Done")
 #  ...
 #  1: source("f.R")
 
-## ---- error = TRUE, eval = FALSE-----------------------------------------
+## ---- error = TRUE, eval = FALSE----------------------------------------------
 #  f <- function() {
 #    log("not a number")
 #    print("Hello world")
 #  }
 #  tryCatch(f(), error = function(e) { traceback() })
 
-## ---- eval = FALSE-------------------------------------------------------
+## ---- eval = FALSE------------------------------------------------------------
 #  8: value[[3L]](cond)
 #  7: tryCatchOne(expr, names, parentenv, handlers[[1L]])
 #  6: tryCatchList(expr, classes, parentenv, handlers)
@@ -116,14 +116,14 @@ print("Done")
 #  ...
 #  1: source("f.R")
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 f <- function() {
   warning("deprecated function called")
   print("Hello world")
 }
 withCallingHandlers(f(), warning = function(w) { write.to.log(sys.calls()) })
 
-## ---- results = 'hold'---------------------------------------------------
+## ---- results = 'hold'--------------------------------------------------------
 f <- function() {
   warning("deprecated function called")
   print("Hello old world")
@@ -132,7 +132,7 @@ withCallingHandlers(f(), warning = function(w) { write.to.log(sys.calls())
                                                  invokeRestart("muffleWarning")})
 print("Done")
 
-## ---- results='hold'-----------------------------------------------------
+## ---- results='hold'----------------------------------------------------------
 f <- function() {
   warning("deprecated function called")
   print("A warning cannot stop me")
@@ -146,15 +146,15 @@ tryCatch(withCallingHandlers(f(), error=function(e) {write.to.log(sys.calls())}
          , error = function(e) { print("recovered from error") })
 print("Done")
 
-## ---- eval = FALSE-------------------------------------------------------
+## ---- eval = FALSE------------------------------------------------------------
 #  # install.packages("devtools")
 #  library(devtools)
 #  install_github("aryoda/tryCatchLog")
 
-## ---- results = 'hide', message = FALSE, echo = FALSE--------------------
+## ---- results = 'hide', message = FALSE, echo = FALSE-------------------------
 library(tryCatchLog)   # load the package to avoid startup messages in the results later
 
-## ---- eval = FALSE, warning=F--------------------------------------------
+## ---- eval = FALSE, warning=F-------------------------------------------------
 #  library(tryCatchLog)
 #  f <- function(value) {
 #    print("begin")
@@ -164,7 +164,7 @@ library(tryCatchLog)   # load the package to avoid startup messages in the resul
 #  tryLog(f("not a number"))
 #  print("Errors don't stop me!")
 
-## ---- eval = FALSE-------------------------------------------------------
+## ---- eval = FALSE------------------------------------------------------------
 #  ## [1] "begin"
 #  ## ERROR [2016-12-06 21:44:21] non-numeric argument to mathematical function
 #  ## Compact call stack:
@@ -175,7 +175,7 @@ library(tryCatchLog)   # load the package to avoid startup messages in the resul
 #  ## ...
 #  ## [1] "Errors don't stop me!"
 
-## ---- eval = FALSE, warning=F--------------------------------------------
+## ---- eval = FALSE, warning=F-------------------------------------------------
 #  library(tryCatchLog)
 #  f <- function(value) {
 #    print("begin")
@@ -184,7 +184,7 @@ library(tryCatchLog)   # load the package to avoid startup messages in the resul
 #  }
 #  tryLog(f(-1))
 
-## ----eval = FALSE--------------------------------------------------------
+## ----eval = FALSE-------------------------------------------------------------
 #  ## [1] "begin"
 #  ## WARN [2016-12-06 21:33:41] NaNs produced
 #  ## Compact call stack:
@@ -195,7 +195,7 @@ library(tryCatchLog)   # load the package to avoid startup messages in the resul
 #  ...
 #  ## [1] "end"
 
-## ---- eval = FALSE-------------------------------------------------------
+## ---- eval = FALSE------------------------------------------------------------
 #  library(tryCatchLog)
 #  
 #  send.email <- function(receiver, body) { }  # dummy function (does nothing)
@@ -204,14 +204,14 @@ library(tryCatchLog)   # load the package to avoid startup messages in the resul
 #              error = function(e) { send.email("admin@home", e)
 #              })
 
-## ---- eval = FALSE-------------------------------------------------------
+## ---- eval = FALSE------------------------------------------------------------
 #  ERROR [2017-01-22 22:04:56] non-numeric argument to mathematical function
 #  Compact call stack:
 #    1 tryCatchLog_error_example.R#5: tryCatchLog(log("not a number"), error = function(e) {
 #    2 tryCatchLog.R#273: tryCatch(withCallingHandlers(expr, error = function(e) {
 #  ...
 
-## ----eval = FALSE--------------------------------------------------------
+## ----eval = FALSE-------------------------------------------------------------
 #    library(futile.logger)
 #  
 #    flog.appender(appender.file("app.log"))
@@ -220,7 +220,7 @@ library(tryCatchLog)   # load the package to avoid startup messages in the resul
 #  
 #    try(log(-1))             # the warning will not be logged!
 
-## ----eval = FALSE--------------------------------------------------------
+## ----eval = FALSE-------------------------------------------------------------
 #  library(tryCatchLog)
 #  f <- function(value) {
 #    log(value)
@@ -228,7 +228,7 @@ library(tryCatchLog)   # load the package to avoid startup messages in the resul
 #  a <- "100"
 #  tryLog(f(a), write.error.dump.file = TRUE)
 
-## ----eval = FALSE--------------------------------------------------------
+## ----eval = FALSE-------------------------------------------------------------
 #  ERROR [2016-12-12 22:29:52] non-numeric argument to mathematical function
 #  Call stack environments dumped into file: dump_20161212_222952.rda
 #  Compact call stack:
@@ -239,11 +239,11 @@ library(tryCatchLog)   # load the package to avoid startup messages in the resul
 #    5 test.R#3: .handleSimpleError(function (e)
 #    ...
 
-## ----eval = FALSE--------------------------------------------------------
+## ----eval = FALSE-------------------------------------------------------------
 #  load("dump_20161212_222952.rda")    # load the dump into the global environment
 #  debugger(last.dump)                 # start the post-mortem analysis
 
-## ----eval = FALSE--------------------------------------------------------
+## ----eval = FALSE-------------------------------------------------------------
 #  Message:  non-numeric argument to mathematical functionAvailable environments had calls:
 #  1: source("test.R")
 #  ...
@@ -258,7 +258,7 @@ library(tryCatchLog)   # load the package to avoid startup messages in the resul
 #  Enter an environment number, or 0 to exit
 #  Selection: <Cursor is waiting for your input here>
 
-## ----eval = FALSE--------------------------------------------------------
+## ----eval = FALSE-------------------------------------------------------------
 #  Enter an environment number, or 0 to exit
 #  Selection: 12
 #  Browsing in the environment with call:
@@ -272,19 +272,19 @@ library(tryCatchLog)   # load the package to avoid startup messages in the resul
 #  [1] "character"
 #  Browse[1]>
 
-## ----eval = FALSE--------------------------------------------------------
+## ----eval = FALSE-------------------------------------------------------------
 #  tryCatchLog(expr, ..., finally = NULL,
 #    write.error.dump.file = getOption("tryCatchLog.write.error.dump.file", FALSE),
 #    silent.warnings       = getOption("tryCatchLog.silent.warnings", FALSE),
 #    silent.messages       = getOption("tryCatchLog.silent.messages", FALSE))
 
-## ----eval = FALSE--------------------------------------------------------
+## ----eval = FALSE-------------------------------------------------------------
 #  tryLog(expr,
 #    write.error.dump.file = getOption("tryCatchLog.write.error.dump.file", FALSE),
 #    silent.warnings       = getOption("tryCatchLog.silent.warnings", FALSE),
 #    silent.messages       = getOption("tryCatchLog.silent.messages", FALSE))
 
-## ----results = "hide"----------------------------------------------------
+## ----results = "hide"---------------------------------------------------------
 # Initialize your own default values globally for tryLog and tryCatchLog
 options(tryCatchLog.write.error.dump.file = FALSE)
 options(tryCatchLog.silent.messages       = TRUE)
@@ -301,7 +301,7 @@ tryLog(f())
 # .. instead of the longer version which passes each parameter again and again
 tryLog(f(), silent.warnings=TRUE, silent.messages=TRUE, write.error.dump.file=FALSE)
 
-## ----eval = FALSE--------------------------------------------------------
+## ----eval = FALSE-------------------------------------------------------------
 #  library(futile.logger)
 #  library(tryCatchLog)
 #  
