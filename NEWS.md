@@ -5,7 +5,25 @@ For the conventions for files NEWS and ChangeLog in the GNU project see
 https://www.gnu.org/prep/standards/standards.html#Documentation
 -->
 
-## Version 1.2.1 (Nov. 24, 2020) for CRAN
+## Version 1.2.4 (May 21, 2021) for CRAN
+
+* Fix redirected links found by CRAN precheck:
+  * Found the following (possibly) invalid URLs:
+    URL: https://rstudio.com/products/rstudio/ (moved to https://www.rstudio.com/products/rstudio/)
+    From: inst/doc/tryCatchLog-intro.html
+
+## Version 1.2.3 (May 16, 2021) - submitted at CRAN but rejected
+
+* Fix bug #64: Unit tests fail on R-devel (test_build_log_entry.R and test_build_log_output).
+  Many thanks to Brodie Gaslam to find and help fixing this bug!
+* Extend the maximum value of the `maxwidth argument of limitedLabels() from 1000 to 2000.
+  This was required for a decent fix of bug #64.
+
+## Version 1.2.2 (Jan. 8, 2021)
+
+* Fix bug #63: Severity level is contained twice in the log message output line
+
+## Version 1.2.1 (Nov. 24, 2020) - published at CRAN (Nov 25, 2020)
 
 * Fix redirected links found by CRAN precheck:
   * Found the following (possibly) invalid URLs:
@@ -54,7 +72,7 @@ https://www.gnu.org/prep/standards/standards.html#Documentation
   
   
 
-## Version 1.1.6 (Nov 6, 2019)
+## Version 1.1.6 (Nov 6, 2019) - published at CRAN (Nov 7, 2019)
 
 * CRAN release version (with fixed broken unit test that caused this
   package to be removed from CRAN three weeks ago)

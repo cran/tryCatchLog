@@ -8,11 +8,11 @@
 <meta name="generator" content="pandoc" />
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 
 <meta name="author" content="Jürgen Altfeld" />
 
-<meta name="date" content="2020-11-24" />
+<meta name="date" content="2021-05-21" />
 
 <title>Error handling in R with tryCatchLog: Catching, logging, post-mortem analysis</title>
 
@@ -37,7 +37,7 @@ a.sourceLine { text-indent: -1em; padding-left: 1em; }
 pre.numberSource a.sourceLine
   { position: relative; left: -4em; }
 pre.numberSource a.sourceLine::before
-  { content: attr(data-line-number);
+  { content: attr(title);
     position: relative; left: -1em; text-align: right; vertical-align: baseline;
     border: none; pointer-events: all; display: inline-block;
     -webkit-touch-callout: none; -webkit-user-select: none;
@@ -117,9 +117,6 @@ padding-right: 2em;
 font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
 font-size: 14px;
 line-height: 1.35;
-}
-#header {
-text-align: center;
 }
 #TOC {
 clear: both;
@@ -288,7 +285,8 @@ code > span.st { color: #d14; }
 code > span.co { color: #888888; font-style: italic; } 
 code > span.ot { color: #007020; } 
 code > span.al { color: #ff0000; font-weight: bold; } 
-code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61717; background-color: #e3d2d2; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
 </style>
 
 
@@ -303,7 +301,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 
 <h1 class="title toc-ignore">Error handling in R with tryCatchLog: Catching, logging, post-mortem analysis</h1>
 <h4 class="author">Jürgen Altfeld</h4>
-<h4 class="date">2020-11-24</h4>
+<h4 class="date">2021-05-21</h4>
 
 
 
@@ -355,10 +353,10 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <div id="condition-examples" class="section level2">
 <h2>Condition examples</h2>
 <p>An error condition:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">log</span>(<span class="st">&quot;text&quot;</span>)   <span class="co"># calculating the logarithm of a string throws an error</span></a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">log</span>(<span class="st">&quot;text&quot;</span>)   <span class="co"># calculating the logarithm of a string throws an error</span></a></code></pre></div>
 <pre><code>## Error in log(&quot;text&quot;): non-numeric argument to mathematical function</code></pre>
 <p>A warning condition:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="kw">log</span>(<span class="op">-</span><span class="dv">1</span>)                <span class="co"># logarithm of a negative number throws a warning</span></a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">log</span>(<span class="op">-</span><span class="dv">1</span>)                <span class="co"># logarithm of a negative number throws a warning</span></a></code></pre></div>
 <pre><code>## Warning in log(-1): NaNs produced</code></pre>
 <pre><code>## [1] NaN</code></pre>
 </div>
@@ -370,22 +368,22 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <div id="throw-an-error" class="section level2">
 <h2>Throw an Error</h2>
 <p>Use <code>stop</code> to throw an error “condition” to signal an invalid program state:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="cf">if</span> (<span class="dv">1</span> <span class="op">!=</span><span class="st"> </span><span class="dv">2</span>)</a>
-<a class="sourceLine" id="cb6-2" data-line-number="2">  <span class="kw">stop</span>(<span class="st">&quot;something is wrong&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" title="1"><span class="cf">if</span> (<span class="dv">1</span> <span class="op">!=</span><span class="st"> </span><span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb6-2" title="2">  <span class="kw">stop</span>(<span class="st">&quot;something is wrong&quot;</span>)</a></code></pre></div>
 <pre><code>## Error in eval(expr, envir, enclos): something is wrong</code></pre>
 <p></br> Or shorter (but without a way to specify an error text):</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1"><span class="kw">stopifnot</span>(<span class="dv">1</span> <span class="op">==</span><span class="st"> </span><span class="dv">2</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" title="1"><span class="kw">stopifnot</span>(<span class="dv">1</span> <span class="op">==</span><span class="st"> </span><span class="dv">2</span>)</a></code></pre></div>
 <pre><code>## Error: 1 == 2 is not TRUE</code></pre>
 <p><code>stopifnot</code> is quite often used to ensure pre-conditions in function calls.</p>
 </div>
 <div id="throw-a-warning" class="section level2">
 <h2>Throw a Warning</h2>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" data-line-number="1"><span class="kw">warning</span>(<span class="st">&quot;bad weather today, don't forget your umbrella&quot;</span>)</a></code></pre></div>
-<pre><code>## Warning: bad weather today, don't forget your umbrella</code></pre>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" title="1"><span class="kw">warning</span>(<span class="st">&quot;bad weather today, don&#39;t forget your umbrella&quot;</span>)</a></code></pre></div>
+<pre><code>## Warning: bad weather today, don&#39;t forget your umbrella</code></pre>
 </div>
 <div id="throw-a-message" class="section level2">
 <h2>Throw a Message</h2>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1"><span class="kw">message</span>(<span class="st">&quot;good morning&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" title="1"><span class="kw">message</span>(<span class="st">&quot;good morning&quot;</span>)</a></code></pre></div>
 <pre><code>## good morning</code></pre>
 </div>
 </div>
@@ -395,32 +393,32 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <div id="unhandled-errors-stop-r" class="section level2">
 <h2>Unhandled errors stop R</h2>
 <p>By default R will stop the execution if an error occurs:</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1"><span class="kw">options</span>(<span class="dt">error =</span> <span class="ot">NULL</span>)  <span class="co"># switch to default behaviour of pure R</span></a>
-<a class="sourceLine" id="cb14-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb14-3" data-line-number="3">test &lt;-<span class="st"> </span><span class="cf">function</span>() {</a>
-<a class="sourceLine" id="cb14-4" data-line-number="4">  <span class="kw">log</span>(<span class="st">&quot;not a number&quot;</span>)</a>
-<a class="sourceLine" id="cb14-5" data-line-number="5">  <span class="kw">print</span>(<span class="st">&quot;R does stop due to an error and never executes this line&quot;</span>)</a>
-<a class="sourceLine" id="cb14-6" data-line-number="6">}</a>
-<a class="sourceLine" id="cb14-7" data-line-number="7"></a>
-<a class="sourceLine" id="cb14-8" data-line-number="8"><span class="kw">test</span>()     <span class="co"># throws an error</span></a></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" title="1"><span class="kw">options</span>(<span class="dt">error =</span> <span class="ot">NULL</span>)  <span class="co"># switch to default behaviour of pure R</span></a>
+<a class="sourceLine" id="cb14-2" title="2"></a>
+<a class="sourceLine" id="cb14-3" title="3">test &lt;-<span class="st"> </span><span class="cf">function</span>() {</a>
+<a class="sourceLine" id="cb14-4" title="4">  <span class="kw">log</span>(<span class="st">&quot;not a number&quot;</span>)</a>
+<a class="sourceLine" id="cb14-5" title="5">  <span class="kw">print</span>(<span class="st">&quot;R does stop due to an error and never executes this line&quot;</span>)</a>
+<a class="sourceLine" id="cb14-6" title="6">}</a>
+<a class="sourceLine" id="cb14-7" title="7"></a>
+<a class="sourceLine" id="cb14-8" title="8"><span class="kw">test</span>()     <span class="co"># throws an error</span></a></code></pre></div>
 <pre><code>## Error in log(&quot;not a number&quot;): non-numeric argument to mathematical function</code></pre>
 <p>Note that the output does <strong>not</strong> show the <code>print</code> result since the execution stops in case of an error.</p>
 </div>
 <div id="use-try-to-ignore-errors" class="section level2">
 <h2>Use <code>try</code> to ignore errors</h2>
 <p>With the <code>try</code> function you can handle errors to continue the execution (by ignoring the error):</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" data-line-number="1"><span class="kw">try</span>(<span class="kw">log</span>(<span class="st">&quot;not a number&quot;</span>), <span class="dt">silent =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb16-2" data-line-number="2"><span class="kw">print</span>(<span class="st">&quot;errors can't stop me&quot;</span>)</a></code></pre></div>
-<pre><code>## [1] &quot;errors can't stop me&quot;</code></pre>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" title="1"><span class="kw">try</span>(<span class="kw">log</span>(<span class="st">&quot;not a number&quot;</span>), <span class="dt">silent =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb16-2" title="2"><span class="kw">print</span>(<span class="st">&quot;errors can&#39;t stop me&quot;</span>)</a></code></pre></div>
+<pre><code>## [1] &quot;errors can&#39;t stop me&quot;</code></pre>
 <p><strong>Note:</strong> If an error occurs then the error message is printed to the <code>stderr</code> connection unless the call includes <code>silent = TRUE</code>.</p>
 </div>
 <div id="use-trycatch-to-handle-errors" class="section level2">
 <h2>Use <code>tryCatch</code> to handle errors</h2>
 <p>With <code>tryCatch</code> you can handle errors as you want:</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" data-line-number="1">an.error.occured &lt;-<span class="st"> </span><span class="ot">FALSE</span></a>
-<a class="sourceLine" id="cb18-2" data-line-number="2"><span class="kw">tryCatch</span>( { result &lt;-<span class="st"> </span><span class="kw">log</span>(<span class="st">&quot;not a number&quot;</span>); <span class="kw">print</span>(res) }</a>
-<a class="sourceLine" id="cb18-3" data-line-number="3">          , <span class="dt">error =</span> <span class="cf">function</span>(e) {an.error.occured &lt;&lt;-<span class="st"> </span><span class="ot">TRUE</span>})</a>
-<a class="sourceLine" id="cb18-4" data-line-number="4"><span class="kw">print</span>(an.error.occured)</a></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" title="1">an.error.occured &lt;-<span class="st"> </span><span class="ot">FALSE</span></a>
+<a class="sourceLine" id="cb18-2" title="2"><span class="kw">tryCatch</span>( { result &lt;-<span class="st"> </span><span class="kw">log</span>(<span class="st">&quot;not a number&quot;</span>); <span class="kw">print</span>(res) }</a>
+<a class="sourceLine" id="cb18-3" title="3">          , <span class="dt">error =</span> <span class="cf">function</span>(e) {an.error.occured &lt;&lt;-<span class="st"> </span><span class="ot">TRUE</span>})</a>
+<a class="sourceLine" id="cb18-4" title="4"><span class="kw">print</span>(an.error.occured)</a></code></pre></div>
 <pre><code>## [1] TRUE</code></pre>
 <p></br> If you use an error handler function</p>
 <ul>
@@ -431,30 +429,30 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <div id="trycatch-can-handle-all-conditions-12" class="section level2">
 <h2><code>tryCatch</code> can handle all conditions 1/2</h2>
 <p>… not only errors. Just use the condition name as parameter to handle conditions of this type, e. g. warnings:</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" data-line-number="1"><span class="kw">tryCatch</span>( { result &lt;-<span class="st"> </span><span class="kw">log</span>(<span class="op">-</span><span class="dv">1</span>); <span class="kw">print</span>(result) }</a>
-<a class="sourceLine" id="cb20-2" data-line-number="2">          , <span class="dt">warning =</span> <span class="cf">function</span>(w) { <span class="kw">print</span>(<span class="st">&quot;Hey, a warning&quot;</span>) })</a></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" title="1"><span class="kw">tryCatch</span>( { result &lt;-<span class="st"> </span><span class="kw">log</span>(<span class="op">-</span><span class="dv">1</span>); <span class="kw">print</span>(result) }</a>
+<a class="sourceLine" id="cb20-2" title="2">          , <span class="dt">warning =</span> <span class="cf">function</span>(w) { <span class="kw">print</span>(<span class="st">&quot;Hey, a warning&quot;</span>) })</a></code></pre></div>
 <pre><code>## [1] &quot;Hey, a warning&quot;</code></pre>
 </div>
 <div id="trycatch-can-handle-all-conditions-22" class="section level2">
 <h2><code>tryCatch</code> can handle all conditions 2/2</h2>
 <p>You can use <code>error</code>, <code>warning</code>, <code>message</code> or <code>interrupt</code> as parameter name to assign a handler for these “standard” conditions, e. g. to catch messages:</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" data-line-number="1">last.message &lt;-<span class="st"> </span><span class="ot">NULL</span></a>
-<a class="sourceLine" id="cb22-2" data-line-number="2"><span class="kw">tryCatch</span>( { <span class="kw">message</span>(<span class="st">&quot;please handle me&quot;</span>); <span class="kw">print</span>(<span class="st">&quot;Done&quot;</span>) }</a>
-<a class="sourceLine" id="cb22-3" data-line-number="3">          , <span class="dt">message =</span> <span class="cf">function</span>(m) { last.message &lt;&lt;-<span class="st"> </span>m })</a>
-<a class="sourceLine" id="cb22-4" data-line-number="4"><span class="kw">print</span>(last.message<span class="op">$</span>message)</a></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" title="1">last.message &lt;-<span class="st"> </span><span class="ot">NULL</span></a>
+<a class="sourceLine" id="cb22-2" title="2"><span class="kw">tryCatch</span>( { <span class="kw">message</span>(<span class="st">&quot;please handle me&quot;</span>); <span class="kw">print</span>(<span class="st">&quot;Done&quot;</span>) }</a>
+<a class="sourceLine" id="cb22-3" title="3">          , <span class="dt">message =</span> <span class="cf">function</span>(m) { last.message &lt;&lt;-<span class="st"> </span>m })</a>
+<a class="sourceLine" id="cb22-4" title="4"><span class="kw">print</span>(last.message<span class="op">$</span>message)</a></code></pre></div>
 <pre><code>## [1] &quot;please handle me\n&quot;</code></pre>
 </div>
 <div id="advanced-topic-user-defined-conditions" class="section level2">
 <h2>Advanced topic: User defined conditions</h2>
 <p>You can even define your own user-defined condition classes, but there is no built-in function to generate a new object of class <code>condition</code>. So do it yourself:*</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb24-1" data-line-number="1">condition &lt;-<span class="st"> </span><span class="cf">function</span>(subclass, message, <span class="dt">call =</span> <span class="kw">sys.call</span>(<span class="op">-</span><span class="dv">1</span>), ...) {</a>
-<a class="sourceLine" id="cb24-2" data-line-number="2">  <span class="kw">structure</span>( <span class="dt">class =</span> <span class="kw">c</span>(subclass, <span class="st">&quot;condition&quot;</span>),</a>
-<a class="sourceLine" id="cb24-3" data-line-number="3">             <span class="kw">list</span>(<span class="dt">message =</span> message, <span class="dt">call =</span> call, ...))</a>
-<a class="sourceLine" id="cb24-4" data-line-number="4">}</a>
-<a class="sourceLine" id="cb24-5" data-line-number="5"></a>
-<a class="sourceLine" id="cb24-6" data-line-number="6"><span class="kw">tryCatch</span>( { work &lt;-<span class="st"> </span><span class="kw">condition</span>(<span class="st">&quot;my.work.condition&quot;</span>, <span class="st">&quot;after work party&quot;</span>)</a>
-<a class="sourceLine" id="cb24-7" data-line-number="7">            <span class="kw">signalCondition</span>(work); <span class="kw">print</span>(<span class="st">&quot;Done&quot;</span>) }</a>
-<a class="sourceLine" id="cb24-8" data-line-number="8">          , <span class="dt">my.work.condition =</span> <span class="cf">function</span>(c) { <span class="kw">print</span>(c<span class="op">$</span>message) })</a></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb24-1" title="1">condition &lt;-<span class="st"> </span><span class="cf">function</span>(subclass, message, <span class="dt">call =</span> <span class="kw">sys.call</span>(<span class="op">-</span><span class="dv">1</span>), ...) {</a>
+<a class="sourceLine" id="cb24-2" title="2">  <span class="kw">structure</span>( <span class="dt">class =</span> <span class="kw">c</span>(subclass, <span class="st">&quot;condition&quot;</span>),</a>
+<a class="sourceLine" id="cb24-3" title="3">             <span class="kw">list</span>(<span class="dt">message =</span> message, <span class="dt">call =</span> call, ...))</a>
+<a class="sourceLine" id="cb24-4" title="4">}</a>
+<a class="sourceLine" id="cb24-5" title="5"></a>
+<a class="sourceLine" id="cb24-6" title="6"><span class="kw">tryCatch</span>( { work &lt;-<span class="st"> </span><span class="kw">condition</span>(<span class="st">&quot;my.work.condition&quot;</span>, <span class="st">&quot;after work party&quot;</span>)</a>
+<a class="sourceLine" id="cb24-7" title="7">            <span class="kw">signalCondition</span>(work); <span class="kw">print</span>(<span class="st">&quot;Done&quot;</span>) }</a>
+<a class="sourceLine" id="cb24-8" title="8">          , <span class="dt">my.work.condition =</span> <span class="cf">function</span>(c) { <span class="kw">print</span>(c<span class="op">$</span>message) })</a></code></pre></div>
 <pre><code>## [1] &quot;after work party&quot;</code></pre>
 <p>User-defined condition classes are only required if you want to implement a specific recovery strategy for this condition. This is out of scope of this presentation.</p>
 <p>*) Source: <a href="http://adv-r.had.co.nz/beyond-exception-handling.html" class="uri">http://adv-r.had.co.nz/beyond-exception-handling.html</a></p>
@@ -470,14 +468,14 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <div id="handling-a-condition-stops-the-execution-12" class="section level2">
 <h2>Handling a condition stops the execution 1/2</h2>
 <p>Calling the function <strong>without</strong> a <code>tryCatch</code> handler does <strong>not stop</strong> the execution of the function <code>f()</code>:</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb26-1" data-line-number="1">{ <span class="co"># required to execute the code as one block to summarize the output in this Rmd</span></a>
-<a class="sourceLine" id="cb26-2" data-line-number="2">  f &lt;-<span class="st"> </span><span class="cf">function</span>() {</a>
-<a class="sourceLine" id="cb26-3" data-line-number="3">    <span class="kw">warning</span>(<span class="st">&quot;deprecated function called&quot;</span>)</a>
-<a class="sourceLine" id="cb26-4" data-line-number="4">    <span class="kw">print</span>(<span class="st">&quot;Hello world&quot;</span>)</a>
-<a class="sourceLine" id="cb26-5" data-line-number="5">  }</a>
-<a class="sourceLine" id="cb26-6" data-line-number="6">  <span class="kw">f</span>()</a>
-<a class="sourceLine" id="cb26-7" data-line-number="7">  <span class="kw">print</span>(<span class="st">&quot;Done&quot;</span>)</a>
-<a class="sourceLine" id="cb26-8" data-line-number="8">}</a></code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb26-1" title="1">{ <span class="co"># required to execute the code as one block to summarize the output in this Rmd</span></a>
+<a class="sourceLine" id="cb26-2" title="2">  f &lt;-<span class="st"> </span><span class="cf">function</span>() {</a>
+<a class="sourceLine" id="cb26-3" title="3">    <span class="kw">warning</span>(<span class="st">&quot;deprecated function called&quot;</span>)</a>
+<a class="sourceLine" id="cb26-4" title="4">    <span class="kw">print</span>(<span class="st">&quot;Hello world&quot;</span>)</a>
+<a class="sourceLine" id="cb26-5" title="5">  }</a>
+<a class="sourceLine" id="cb26-6" title="6">  <span class="kw">f</span>()</a>
+<a class="sourceLine" id="cb26-7" title="7">  <span class="kw">print</span>(<span class="st">&quot;Done&quot;</span>)</a>
+<a class="sourceLine" id="cb26-8" title="8">}</a></code></pre></div>
 <pre><code>## Warning in f(): deprecated function called</code></pre>
 <pre><code>## [1] &quot;Hello world&quot;
 ## [1] &quot;Done&quot;</code></pre>
@@ -486,12 +484,12 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <div id="handling-a-condition-stops-the-execution-22" class="section level2">
 <h2>Handling a condition stops the execution 2/2</h2>
 <p>Handling a condition <strong>cancels</strong> the execution of the code block that raised (throwed) the condition:</p>
-<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb29-1" data-line-number="1">f &lt;-<span class="st"> </span><span class="cf">function</span>() {</a>
-<a class="sourceLine" id="cb29-2" data-line-number="2">  <span class="kw">warning</span>(<span class="st">&quot;deprecated function called&quot;</span>)</a>
-<a class="sourceLine" id="cb29-3" data-line-number="3">  <span class="kw">print</span>(<span class="st">&quot;Hello world&quot;</span>)</a>
-<a class="sourceLine" id="cb29-4" data-line-number="4">}</a>
-<a class="sourceLine" id="cb29-5" data-line-number="5"><span class="kw">tryCatch</span>(<span class="kw">f</span>(), <span class="dt">warning =</span> <span class="cf">function</span>(w) { <span class="kw">write.to.log</span>(w) })</a>
-<a class="sourceLine" id="cb29-6" data-line-number="6"><span class="kw">print</span>(<span class="st">&quot;Done&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb29-1" title="1">f &lt;-<span class="st"> </span><span class="cf">function</span>() {</a>
+<a class="sourceLine" id="cb29-2" title="2">  <span class="kw">warning</span>(<span class="st">&quot;deprecated function called&quot;</span>)</a>
+<a class="sourceLine" id="cb29-3" title="3">  <span class="kw">print</span>(<span class="st">&quot;Hello world&quot;</span>)</a>
+<a class="sourceLine" id="cb29-4" title="4">}</a>
+<a class="sourceLine" id="cb29-5" title="5"><span class="kw">tryCatch</span>(<span class="kw">f</span>(), <span class="dt">warning =</span> <span class="cf">function</span>(w) { <span class="kw">write.to.log</span>(w) })</a>
+<a class="sourceLine" id="cb29-6" title="6"><span class="kw">print</span>(<span class="st">&quot;Done&quot;</span>)</a></code></pre></div>
 <pre><code>## [1] &quot;Done&quot;</code></pre>
 <p><strong>Observe:</strong> <em>Hello world</em> is never printed just because we catched a warning!</p>
 <p><strong>If you catch a condition with <code>tryCatch</code> (even just a warning or message) then R</strong></p>
@@ -504,37 +502,37 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <div id="handling-errors-unrolls-the-stack-trace-12" class="section level2">
 <h2>Handling errors unrolls the stack trace 1/2</h2>
 <p>If you do <strong>not catch an error</strong> R stops and you can get the complete function call stack using <code>traceback</code> to identify the code that throwed the error:</p>
-<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb31-1" data-line-number="1"><span class="kw">options</span>(<span class="dt">error=</span><span class="cf">function</span>() <span class="kw">traceback</span>(<span class="dv">2</span>)) <span class="co"># http://stackoverflow.com/a/13119318/4468078</span></a>
-<a class="sourceLine" id="cb31-2" data-line-number="2">f &lt;-<span class="st"> </span><span class="cf">function</span>() {</a>
-<a class="sourceLine" id="cb31-3" data-line-number="3">  <span class="kw">log</span>(<span class="st">&quot;not a number&quot;</span>)</a>
-<a class="sourceLine" id="cb31-4" data-line-number="4">  <span class="kw">print</span>(<span class="st">&quot;Hello world&quot;</span>)</a>
-<a class="sourceLine" id="cb31-5" data-line-number="5">}</a>
-<a class="sourceLine" id="cb31-6" data-line-number="6"><span class="kw">f</span>()</a></code></pre></div>
-<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb32-1" data-line-number="1">Error <span class="cf">in</span> <span class="kw">log</span>(<span class="st">&quot;not a number&quot;</span>) <span class="op">:</span></a>
-<a class="sourceLine" id="cb32-2" data-line-number="2"><span class="st">  </span>non<span class="op">-</span>numeric argument to mathematical <span class="cf">function</span></a>
-<a class="sourceLine" id="cb32-3" data-line-number="3"><span class="dv">6</span><span class="op">:</span><span class="st"> </span>(<span class="cf">function</span> ()</a>
-<a class="sourceLine" id="cb32-4" data-line-number="4">   <span class="kw">traceback</span>(<span class="dv">2</span>))() at f.R<span class="co">#3</span></a>
-<a class="sourceLine" id="cb32-5" data-line-number="5"><span class="dv">5</span><span class="op">:</span><span class="st"> </span><span class="kw">f</span>() at f.R<span class="co">#6</span></a>
-<a class="sourceLine" id="cb32-6" data-line-number="6">...</a>
-<a class="sourceLine" id="cb32-7" data-line-number="7"><span class="dv">1</span><span class="op">:</span><span class="st"> </span><span class="kw">source</span>(<span class="st">&quot;f.R&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb31-1" title="1"><span class="kw">options</span>(<span class="dt">error=</span><span class="cf">function</span>() <span class="kw">traceback</span>(<span class="dv">2</span>)) <span class="co"># http://stackoverflow.com/a/13119318/4468078</span></a>
+<a class="sourceLine" id="cb31-2" title="2">f &lt;-<span class="st"> </span><span class="cf">function</span>() {</a>
+<a class="sourceLine" id="cb31-3" title="3">  <span class="kw">log</span>(<span class="st">&quot;not a number&quot;</span>)</a>
+<a class="sourceLine" id="cb31-4" title="4">  <span class="kw">print</span>(<span class="st">&quot;Hello world&quot;</span>)</a>
+<a class="sourceLine" id="cb31-5" title="5">}</a>
+<a class="sourceLine" id="cb31-6" title="6"><span class="kw">f</span>()</a></code></pre></div>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb32-1" title="1">Error <span class="cf">in</span> <span class="kw">log</span>(<span class="st">&quot;not a number&quot;</span>) <span class="op">:</span></a>
+<a class="sourceLine" id="cb32-2" title="2"><span class="st">  </span>non<span class="op">-</span>numeric argument to mathematical <span class="cf">function</span></a>
+<a class="sourceLine" id="cb32-3" title="3"><span class="dv">6</span><span class="op">:</span><span class="st"> </span>(<span class="cf">function</span> ()</a>
+<a class="sourceLine" id="cb32-4" title="4">   <span class="kw">traceback</span>(<span class="dv">2</span>))() at f.R<span class="co">#3</span></a>
+<a class="sourceLine" id="cb32-5" title="5"><span class="dv">5</span><span class="op">:</span><span class="st"> </span><span class="kw">f</span>() at f.R<span class="co">#6</span></a>
+<a class="sourceLine" id="cb32-6" title="6">...</a>
+<a class="sourceLine" id="cb32-7" title="7"><span class="dv">1</span><span class="op">:</span><span class="st"> </span><span class="kw">source</span>(<span class="st">&quot;f.R&quot;</span>)</a></code></pre></div>
 <p><strong>Note:</strong> The call stack shows the line number after the file name and hash sign, e. g. <code>file1.R#7</code> = line number 7</p>
 </div>
 <div id="handling-errors-unrolls-the-stack-trace-22" class="section level2">
 <h2>Handling errors unrolls the stack trace 2/2</h2>
 <p>But if you handle the error, the call stack is truncated:</p>
-<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" data-line-number="1">f &lt;-<span class="st"> </span><span class="cf">function</span>() {</a>
-<a class="sourceLine" id="cb33-2" data-line-number="2">  <span class="kw">log</span>(<span class="st">&quot;not a number&quot;</span>)</a>
-<a class="sourceLine" id="cb33-3" data-line-number="3">  <span class="kw">print</span>(<span class="st">&quot;Hello world&quot;</span>)</a>
-<a class="sourceLine" id="cb33-4" data-line-number="4">}</a>
-<a class="sourceLine" id="cb33-5" data-line-number="5"><span class="kw">tryCatch</span>(<span class="kw">f</span>(), <span class="dt">error =</span> <span class="cf">function</span>(e) { <span class="kw">traceback</span>() })</a></code></pre></div>
-<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb34-1" data-line-number="1"><span class="dv">8</span><span class="op">:</span><span class="st"> </span>value[[3L]](cond)</a>
-<a class="sourceLine" id="cb34-2" data-line-number="2"><span class="dv">7</span><span class="op">:</span><span class="st"> </span><span class="kw">tryCatchOne</span>(expr, names, parentenv, handlers[[1L]])</a>
-<a class="sourceLine" id="cb34-3" data-line-number="3"><span class="dv">6</span><span class="op">:</span><span class="st"> </span><span class="kw">tryCatchList</span>(expr, classes, parentenv, handlers)</a>
-<a class="sourceLine" id="cb34-4" data-line-number="4"><span class="dv">5</span><span class="op">:</span><span class="st"> </span><span class="kw">tryCatch</span>(<span class="kw">f</span>(), <span class="dt">error =</span> <span class="cf">function</span>(e) {</a>
-<a class="sourceLine" id="cb34-5" data-line-number="5">       <span class="kw">traceback</span>(<span class="dv">2</span>)</a>
-<a class="sourceLine" id="cb34-6" data-line-number="6">   }) at f.R<span class="co">#5</span></a>
-<a class="sourceLine" id="cb34-7" data-line-number="7">...</a>
-<a class="sourceLine" id="cb34-8" data-line-number="8"><span class="dv">1</span><span class="op">:</span><span class="st"> </span><span class="kw">source</span>(<span class="st">&quot;f.R&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" title="1">f &lt;-<span class="st"> </span><span class="cf">function</span>() {</a>
+<a class="sourceLine" id="cb33-2" title="2">  <span class="kw">log</span>(<span class="st">&quot;not a number&quot;</span>)</a>
+<a class="sourceLine" id="cb33-3" title="3">  <span class="kw">print</span>(<span class="st">&quot;Hello world&quot;</span>)</a>
+<a class="sourceLine" id="cb33-4" title="4">}</a>
+<a class="sourceLine" id="cb33-5" title="5"><span class="kw">tryCatch</span>(<span class="kw">f</span>(), <span class="dt">error =</span> <span class="cf">function</span>(e) { <span class="kw">traceback</span>() })</a></code></pre></div>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb34-1" title="1"><span class="dv">8</span><span class="op">:</span><span class="st"> </span>value[[3L]](cond)</a>
+<a class="sourceLine" id="cb34-2" title="2"><span class="dv">7</span><span class="op">:</span><span class="st"> </span><span class="kw">tryCatchOne</span>(expr, names, parentenv, handlers[[1L]])</a>
+<a class="sourceLine" id="cb34-3" title="3"><span class="dv">6</span><span class="op">:</span><span class="st"> </span><span class="kw">tryCatchList</span>(expr, classes, parentenv, handlers)</a>
+<a class="sourceLine" id="cb34-4" title="4"><span class="dv">5</span><span class="op">:</span><span class="st"> </span><span class="kw">tryCatch</span>(<span class="kw">f</span>(), <span class="dt">error =</span> <span class="cf">function</span>(e) {</a>
+<a class="sourceLine" id="cb34-5" title="5">       <span class="kw">traceback</span>(<span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb34-6" title="6">   }) at f.R<span class="co">#5</span></a>
+<a class="sourceLine" id="cb34-7" title="7">...</a>
+<a class="sourceLine" id="cb34-8" title="8"><span class="dv">1</span><span class="op">:</span><span class="st"> </span><span class="kw">source</span>(<span class="st">&quot;f.R&quot;</span>)</a></code></pre></div>
 <p>The call stack ends basically with the <code>tryCatch</code> call but <strong>does not show you the code line in <code>f()</code> where the error was thrown</strong>.</p>
 </div>
 <div id="summary-the-drawbacks-of-trycatch" class="section level2">
@@ -550,7 +548,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <h1>Workaround 1: Interactive debugging</h1>
 <div id="interactive-debugging" class="section level2">
 <h2>Interactive debugging</h2>
-<p>You can run and debug your R script interactively in the <em>RGui</em> or <a href="https://rstudio.com/products/rstudio/">RStudio</a> instead of condition handling with <code>tryCatch</code>.</p>
+<p>You can run and debug your R script interactively in the <em>RGui</em> or <a href="https://www.rstudio.com/products/rstudio/">RStudio</a> instead of condition handling with <code>tryCatch</code>.</p>
 <p>For more details on interactive debugging see <code>?debug</code>.</p>
 <p><strong>Note: Interactive debugging is out of scope of this presentation.</strong></p>
 </div>
@@ -573,11 +571,11 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <li>remembers the call stack down to the point where the condition was signaled</li>
 <li>resumes the execution after the point where the condition was signaled</li>
 </ol>
-<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb35-1" data-line-number="1">f &lt;-<span class="st"> </span><span class="cf">function</span>() {</a>
-<a class="sourceLine" id="cb35-2" data-line-number="2">  <span class="kw">warning</span>(<span class="st">&quot;deprecated function called&quot;</span>)</a>
-<a class="sourceLine" id="cb35-3" data-line-number="3">  <span class="kw">print</span>(<span class="st">&quot;Hello world&quot;</span>)</a>
-<a class="sourceLine" id="cb35-4" data-line-number="4">}</a>
-<a class="sourceLine" id="cb35-5" data-line-number="5"><span class="kw">withCallingHandlers</span>(<span class="kw">f</span>(), <span class="dt">warning =</span> <span class="cf">function</span>(w) { <span class="kw">write.to.log</span>(<span class="kw">sys.calls</span>()) })</a></code></pre></div>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb35-1" title="1">f &lt;-<span class="st"> </span><span class="cf">function</span>() {</a>
+<a class="sourceLine" id="cb35-2" title="2">  <span class="kw">warning</span>(<span class="st">&quot;deprecated function called&quot;</span>)</a>
+<a class="sourceLine" id="cb35-3" title="3">  <span class="kw">print</span>(<span class="st">&quot;Hello world&quot;</span>)</a>
+<a class="sourceLine" id="cb35-4" title="4">}</a>
+<a class="sourceLine" id="cb35-5" title="5"><span class="kw">withCallingHandlers</span>(<span class="kw">f</span>(), <span class="dt">warning =</span> <span class="cf">function</span>(w) { <span class="kw">write.to.log</span>(<span class="kw">sys.calls</span>()) })</a></code></pre></div>
 <pre><code>## Warning in f(): deprecated function called</code></pre>
 <pre><code>## [1] &quot;Hello world&quot;</code></pre>
 <p><strong>Note:</strong> Use <strong><code>sys.calls</code></strong> within <code>withCallingHandlers</code> to return the full <strong>call stack</strong>.</p>
@@ -585,13 +583,13 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <div id="withcallinghandlers-supports-restarts" class="section level2">
 <h2><code>withCallingHandlers</code> supports restarts</h2>
 <p><em>Restarts</em> allow to recover from conditions using a predefined behaviour:</p>
-<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb38-1" data-line-number="1">f &lt;-<span class="st"> </span><span class="cf">function</span>() {</a>
-<a class="sourceLine" id="cb38-2" data-line-number="2">  <span class="kw">warning</span>(<span class="st">&quot;deprecated function called&quot;</span>)</a>
-<a class="sourceLine" id="cb38-3" data-line-number="3">  <span class="kw">print</span>(<span class="st">&quot;Hello old world&quot;</span>)</a>
-<a class="sourceLine" id="cb38-4" data-line-number="4">}</a>
-<a class="sourceLine" id="cb38-5" data-line-number="5"><span class="kw">withCallingHandlers</span>(<span class="kw">f</span>(), <span class="dt">warning =</span> <span class="cf">function</span>(w) { <span class="kw">write.to.log</span>(<span class="kw">sys.calls</span>())</a>
-<a class="sourceLine" id="cb38-6" data-line-number="6">                                                 <span class="kw">invokeRestart</span>(<span class="st">&quot;muffleWarning&quot;</span>)})</a>
-<a class="sourceLine" id="cb38-7" data-line-number="7"><span class="kw">print</span>(<span class="st">&quot;Done&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb38-1" title="1">f &lt;-<span class="st"> </span><span class="cf">function</span>() {</a>
+<a class="sourceLine" id="cb38-2" title="2">  <span class="kw">warning</span>(<span class="st">&quot;deprecated function called&quot;</span>)</a>
+<a class="sourceLine" id="cb38-3" title="3">  <span class="kw">print</span>(<span class="st">&quot;Hello old world&quot;</span>)</a>
+<a class="sourceLine" id="cb38-4" title="4">}</a>
+<a class="sourceLine" id="cb38-5" title="5"><span class="kw">withCallingHandlers</span>(<span class="kw">f</span>(), <span class="dt">warning =</span> <span class="cf">function</span>(w) { <span class="kw">write.to.log</span>(<span class="kw">sys.calls</span>())</a>
+<a class="sourceLine" id="cb38-6" title="6">                                                 <span class="kw">invokeRestart</span>(<span class="st">&quot;muffleWarning&quot;</span>)})</a>
+<a class="sourceLine" id="cb38-7" title="7"><span class="kw">print</span>(<span class="st">&quot;Done&quot;</span>)</a></code></pre></div>
 <pre><code>## [1] &quot;Hello old world&quot;
 ## [1] &quot;Done&quot;</code></pre>
 <p><code>invokeRestart(&quot;muffleWarning&quot;)</code> has a simple recovery strategy: “Suppress the warning”.</p>
@@ -651,18 +649,18 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <div id="code-snippet-for-better-error-handling" class="section level2">
 <h2>Code snippet for better error handling</h2>
 <p>An improved “error handler” in R looks similar to this code snippet:</p>
-<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb40-1" data-line-number="1">f &lt;-<span class="st"> </span><span class="cf">function</span>() {</a>
-<a class="sourceLine" id="cb40-2" data-line-number="2">  <span class="kw">warning</span>(<span class="st">&quot;deprecated function called&quot;</span>)</a>
-<a class="sourceLine" id="cb40-3" data-line-number="3">  <span class="kw">print</span>(<span class="st">&quot;A warning cannot stop me&quot;</span>)</a>
-<a class="sourceLine" id="cb40-4" data-line-number="4">  <span class="kw">log</span>(<span class="st">&quot;not a number&quot;</span>)</a>
-<a class="sourceLine" id="cb40-5" data-line-number="5">  <span class="kw">print</span>(<span class="st">&quot;Hello old world&quot;</span>)</a>
-<a class="sourceLine" id="cb40-6" data-line-number="6">}</a>
-<a class="sourceLine" id="cb40-7" data-line-number="7"></a>
-<a class="sourceLine" id="cb40-8" data-line-number="8"><span class="kw">tryCatch</span>(<span class="kw">withCallingHandlers</span>(<span class="kw">f</span>(), <span class="dt">error=</span><span class="cf">function</span>(e) {<span class="kw">write.to.log</span>(<span class="kw">sys.calls</span>())}</a>
-<a class="sourceLine" id="cb40-9" data-line-number="9">                                , <span class="dt">warning=</span><span class="cf">function</span>(w) {<span class="kw">write.to.log</span>(<span class="kw">sys.calls</span>())</a>
-<a class="sourceLine" id="cb40-10" data-line-number="10">                                                <span class="kw">invokeRestart</span>(<span class="st">&quot;muffleWarning&quot;</span>)})</a>
-<a class="sourceLine" id="cb40-11" data-line-number="11">         , <span class="dt">error =</span> <span class="cf">function</span>(e) { <span class="kw">print</span>(<span class="st">&quot;recovered from error&quot;</span>) })</a>
-<a class="sourceLine" id="cb40-12" data-line-number="12"><span class="kw">print</span>(<span class="st">&quot;Done&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb40-1" title="1">f &lt;-<span class="st"> </span><span class="cf">function</span>() {</a>
+<a class="sourceLine" id="cb40-2" title="2">  <span class="kw">warning</span>(<span class="st">&quot;deprecated function called&quot;</span>)</a>
+<a class="sourceLine" id="cb40-3" title="3">  <span class="kw">print</span>(<span class="st">&quot;A warning cannot stop me&quot;</span>)</a>
+<a class="sourceLine" id="cb40-4" title="4">  <span class="kw">log</span>(<span class="st">&quot;not a number&quot;</span>)</a>
+<a class="sourceLine" id="cb40-5" title="5">  <span class="kw">print</span>(<span class="st">&quot;Hello old world&quot;</span>)</a>
+<a class="sourceLine" id="cb40-6" title="6">}</a>
+<a class="sourceLine" id="cb40-7" title="7"></a>
+<a class="sourceLine" id="cb40-8" title="8"><span class="kw">tryCatch</span>(<span class="kw">withCallingHandlers</span>(<span class="kw">f</span>(), <span class="dt">error=</span><span class="cf">function</span>(e) {<span class="kw">write.to.log</span>(<span class="kw">sys.calls</span>())}</a>
+<a class="sourceLine" id="cb40-9" title="9">                                , <span class="dt">warning=</span><span class="cf">function</span>(w) {<span class="kw">write.to.log</span>(<span class="kw">sys.calls</span>())</a>
+<a class="sourceLine" id="cb40-10" title="10">                                                <span class="kw">invokeRestart</span>(<span class="st">&quot;muffleWarning&quot;</span>)})</a>
+<a class="sourceLine" id="cb40-11" title="11">         , <span class="dt">error =</span> <span class="cf">function</span>(e) { <span class="kw">print</span>(<span class="st">&quot;recovered from error&quot;</span>) })</a>
+<a class="sourceLine" id="cb40-12" title="12"><span class="kw">print</span>(<span class="st">&quot;Done&quot;</span>)</a></code></pre></div>
 <pre><code>## [1] &quot;A warning cannot stop me&quot;
 ## [1] &quot;recovered from error&quot;
 ## [1] &quot;Done&quot;</code></pre>
@@ -679,9 +677,9 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <div id="installation" class="section level2">
 <h2>Installation</h2>
 <p>To install the package <code>tryCatchLog</code> from the source code use:</p>
-<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb42-1" data-line-number="1"><span class="co"># install.packages(&quot;devtools&quot;)</span></a>
-<a class="sourceLine" id="cb42-2" data-line-number="2"><span class="kw">library</span>(devtools)</a>
-<a class="sourceLine" id="cb42-3" data-line-number="3"><span class="kw">install_github</span>(<span class="st">&quot;aryoda/tryCatchLog&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb42-1" title="1"><span class="co"># install.packages(&quot;devtools&quot;)</span></a>
+<a class="sourceLine" id="cb42-2" title="2"><span class="kw">library</span>(devtools)</a>
+<a class="sourceLine" id="cb42-3" title="3"><span class="kw">install_github</span>(<span class="st">&quot;aryoda/tryCatchLog&quot;</span>)</a></code></pre></div>
 <p>For more details see the Project site at: <a href="https://github.com/aryoda/tryCatchLog" class="uri">https://github.com/aryoda/tryCatchLog</a></p>
 </div>
 <div id="overview-1" class="section level2">
@@ -719,72 +717,72 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <div id="trylog-example-with-an-error" class="section level2">
 <h2><code>tryLog</code> example with an error</h2>
 <p>Errors are logged but the execution continues after the <code>tryLog</code> call:</p>
-<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb43-1" data-line-number="1"><span class="kw">library</span>(tryCatchLog)</a>
-<a class="sourceLine" id="cb43-2" data-line-number="2">f &lt;-<span class="st"> </span><span class="cf">function</span>(value) {</a>
-<a class="sourceLine" id="cb43-3" data-line-number="3">  <span class="kw">print</span>(<span class="st">&quot;begin&quot;</span>)</a>
-<a class="sourceLine" id="cb43-4" data-line-number="4">  <span class="kw">log</span>(value)            <span class="co"># negative number -&gt; warning; string -&gt; error</span></a>
-<a class="sourceLine" id="cb43-5" data-line-number="5">  <span class="kw">print</span>(<span class="st">&quot;end&quot;</span>)</a>
-<a class="sourceLine" id="cb43-6" data-line-number="6">}</a>
-<a class="sourceLine" id="cb43-7" data-line-number="7"><span class="kw">tryLog</span>(<span class="kw">f</span>(<span class="st">&quot;not a number&quot;</span>))</a>
-<a class="sourceLine" id="cb43-8" data-line-number="8"><span class="kw">print</span>(<span class="st">&quot;Errors don't stop me!&quot;</span>)</a></code></pre></div>
-<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb44-1" data-line-number="1"><span class="co">## [1] &quot;begin&quot;</span></a>
-<a class="sourceLine" id="cb44-2" data-line-number="2"><span class="co">## ERROR [2016-12-06 21:44:21] non-numeric argument to mathematical function</span></a>
-<a class="sourceLine" id="cb44-3" data-line-number="3"><span class="co">## Compact call stack:</span></a>
-<a class="sourceLine" id="cb44-4" data-line-number="4"><span class="co">##   1 test.R#7: tryLog(f(&quot;not a number&quot;))</span></a>
-<a class="sourceLine" id="cb44-5" data-line-number="5"><span class="co">##   2 tryCatchLog.R#345: tryCatchLog(expr = expr, write.error.dump.file = write.error.dump.file, error = function(e) {</span></a>
-<a class="sourceLine" id="cb44-6" data-line-number="6"><span class="co">##   3 tryCatchLog.R#259: tryCatch(withCallingHandlers(expr, error = function(e) {</span></a>
-<a class="sourceLine" id="cb44-7" data-line-number="7"><span class="co">##   4 test.R#4: .handleSimpleError(function (e)</span></a>
-<a class="sourceLine" id="cb44-8" data-line-number="8"><span class="co">## ...</span></a>
-<a class="sourceLine" id="cb44-9" data-line-number="9"><span class="co">## [1] &quot;Errors don't stop me!&quot;</span></a></code></pre></div>
+<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb43-1" title="1"><span class="kw">library</span>(tryCatchLog)</a>
+<a class="sourceLine" id="cb43-2" title="2">f &lt;-<span class="st"> </span><span class="cf">function</span>(value) {</a>
+<a class="sourceLine" id="cb43-3" title="3">  <span class="kw">print</span>(<span class="st">&quot;begin&quot;</span>)</a>
+<a class="sourceLine" id="cb43-4" title="4">  <span class="kw">log</span>(value)            <span class="co"># negative number -&gt; warning; string -&gt; error</span></a>
+<a class="sourceLine" id="cb43-5" title="5">  <span class="kw">print</span>(<span class="st">&quot;end&quot;</span>)</a>
+<a class="sourceLine" id="cb43-6" title="6">}</a>
+<a class="sourceLine" id="cb43-7" title="7"><span class="kw">tryLog</span>(<span class="kw">f</span>(<span class="st">&quot;not a number&quot;</span>))</a>
+<a class="sourceLine" id="cb43-8" title="8"><span class="kw">print</span>(<span class="st">&quot;Errors don&#39;t stop me!&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb44-1" title="1"><span class="co">## [1] &quot;begin&quot;</span></a>
+<a class="sourceLine" id="cb44-2" title="2"><span class="co">## ERROR [2016-12-06 21:44:21] non-numeric argument to mathematical function</span></a>
+<a class="sourceLine" id="cb44-3" title="3"><span class="co">## Compact call stack:</span></a>
+<a class="sourceLine" id="cb44-4" title="4"><span class="co">##   1 test.R#7: tryLog(f(&quot;not a number&quot;))</span></a>
+<a class="sourceLine" id="cb44-5" title="5"><span class="co">##   2 tryCatchLog.R#345: tryCatchLog(expr = expr, write.error.dump.file = write.error.dump.file, error = function(e) {</span></a>
+<a class="sourceLine" id="cb44-6" title="6"><span class="co">##   3 tryCatchLog.R#259: tryCatch(withCallingHandlers(expr, error = function(e) {</span></a>
+<a class="sourceLine" id="cb44-7" title="7"><span class="co">##   4 test.R#4: .handleSimpleError(function (e)</span></a>
+<a class="sourceLine" id="cb44-8" title="8"><span class="co">## ...</span></a>
+<a class="sourceLine" id="cb44-9" title="9"><span class="co">## [1] &quot;Errors don&#39;t stop me!&quot;</span></a></code></pre></div>
 </div>
 <div id="trylog-example-with-a-warning" class="section level2">
 <h2><code>tryLog</code> example with a warning</h2>
 <p><code>tryLog</code> catches conditions and logs them onto console or into a file (depending of the settings of the logging framework <code>futile.logger</code> that is used internally):</p>
-<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb45-1" data-line-number="1"><span class="kw">library</span>(tryCatchLog)</a>
-<a class="sourceLine" id="cb45-2" data-line-number="2">f &lt;-<span class="st"> </span><span class="cf">function</span>(value) {</a>
-<a class="sourceLine" id="cb45-3" data-line-number="3">  <span class="kw">print</span>(<span class="st">&quot;begin&quot;</span>)</a>
-<a class="sourceLine" id="cb45-4" data-line-number="4">  <span class="kw">log</span>(value)            <span class="co"># negative number -&gt; warning; string -&gt; error</span></a>
-<a class="sourceLine" id="cb45-5" data-line-number="5">  <span class="kw">print</span>(<span class="st">&quot;end&quot;</span>)</a>
-<a class="sourceLine" id="cb45-6" data-line-number="6">}</a>
-<a class="sourceLine" id="cb45-7" data-line-number="7"><span class="kw">tryLog</span>(<span class="kw">f</span>(<span class="op">-</span><span class="dv">1</span>))</a></code></pre></div>
-<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb46-1" data-line-number="1"><span class="co">## [1] &quot;begin&quot;</span></a>
-<a class="sourceLine" id="cb46-2" data-line-number="2"><span class="co">## WARN [2016-12-06 21:33:41] NaNs produced</span></a>
-<a class="sourceLine" id="cb46-3" data-line-number="3"><span class="co">## Compact call stack:</span></a>
-<a class="sourceLine" id="cb46-4" data-line-number="4"><span class="co">##   1 test.R#7: tryLog(f(-1))</span></a>
-<a class="sourceLine" id="cb46-5" data-line-number="5"><span class="co">##   2 tryCatchLog.R#345: tryCatchLog(expr = expr, write.error.dump.file = write.error.dump.file, error = function(e) {</span></a>
-<a class="sourceLine" id="cb46-6" data-line-number="6"><span class="co">##   3 tryCatchLog.R#259: tryCatch(withCallingHandlers(expr, error = function(e) {</span></a>
-<a class="sourceLine" id="cb46-7" data-line-number="7"><span class="co">##   4 test.R#4: .signalSimpleWarning(&quot;NaNs produced&quot;, quote(log(value)))</span></a>
-<a class="sourceLine" id="cb46-8" data-line-number="8">...</a>
-<a class="sourceLine" id="cb46-9" data-line-number="9"><span class="co">## [1] &quot;end&quot;</span></a></code></pre></div>
+<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb45-1" title="1"><span class="kw">library</span>(tryCatchLog)</a>
+<a class="sourceLine" id="cb45-2" title="2">f &lt;-<span class="st"> </span><span class="cf">function</span>(value) {</a>
+<a class="sourceLine" id="cb45-3" title="3">  <span class="kw">print</span>(<span class="st">&quot;begin&quot;</span>)</a>
+<a class="sourceLine" id="cb45-4" title="4">  <span class="kw">log</span>(value)            <span class="co"># negative number -&gt; warning; string -&gt; error</span></a>
+<a class="sourceLine" id="cb45-5" title="5">  <span class="kw">print</span>(<span class="st">&quot;end&quot;</span>)</a>
+<a class="sourceLine" id="cb45-6" title="6">}</a>
+<a class="sourceLine" id="cb45-7" title="7"><span class="kw">tryLog</span>(<span class="kw">f</span>(<span class="op">-</span><span class="dv">1</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb46-1" title="1"><span class="co">## [1] &quot;begin&quot;</span></a>
+<a class="sourceLine" id="cb46-2" title="2"><span class="co">## WARN [2016-12-06 21:33:41] NaNs produced</span></a>
+<a class="sourceLine" id="cb46-3" title="3"><span class="co">## Compact call stack:</span></a>
+<a class="sourceLine" id="cb46-4" title="4"><span class="co">##   1 test.R#7: tryLog(f(-1))</span></a>
+<a class="sourceLine" id="cb46-5" title="5"><span class="co">##   2 tryCatchLog.R#345: tryCatchLog(expr = expr, write.error.dump.file = write.error.dump.file, error = function(e) {</span></a>
+<a class="sourceLine" id="cb46-6" title="6"><span class="co">##   3 tryCatchLog.R#259: tryCatch(withCallingHandlers(expr, error = function(e) {</span></a>
+<a class="sourceLine" id="cb46-7" title="7"><span class="co">##   4 test.R#4: .signalSimpleWarning(&quot;NaNs produced&quot;, quote(log(value)))</span></a>
+<a class="sourceLine" id="cb46-8" title="8">...</a>
+<a class="sourceLine" id="cb46-9" title="9"><span class="co">## [1] &quot;end&quot;</span></a></code></pre></div>
 </div>
 <div id="trycatchlog-example-to-log-and-recover-from-an-error" class="section level2">
 <h2><code>tryCatchLog</code> example to log and recover from an error</h2>
 <p>Use <code>tryCatchLog</code> to establish an error handler:</p>
-<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb47-1" data-line-number="1"><span class="kw">library</span>(tryCatchLog)</a>
-<a class="sourceLine" id="cb47-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb47-3" data-line-number="3">send.email &lt;-<span class="st"> </span><span class="cf">function</span>(receiver, body) { }  <span class="co"># dummy function (does nothing)</span></a>
-<a class="sourceLine" id="cb47-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb47-5" data-line-number="5"><span class="kw">tryCatchLog</span>(<span class="kw">log</span>(<span class="st">&quot;not a number&quot;</span>),</a>
-<a class="sourceLine" id="cb47-6" data-line-number="6">            <span class="dt">error =</span> <span class="cf">function</span>(e) { <span class="kw">send.email</span>(<span class="st">&quot;admin@home&quot;</span>, e)</a>
-<a class="sourceLine" id="cb47-7" data-line-number="7">            })</a></code></pre></div>
+<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb47-1" title="1"><span class="kw">library</span>(tryCatchLog)</a>
+<a class="sourceLine" id="cb47-2" title="2"></a>
+<a class="sourceLine" id="cb47-3" title="3">send.email &lt;-<span class="st"> </span><span class="cf">function</span>(receiver, body) { }  <span class="co"># dummy function (does nothing)</span></a>
+<a class="sourceLine" id="cb47-4" title="4"></a>
+<a class="sourceLine" id="cb47-5" title="5"><span class="kw">tryCatchLog</span>(<span class="kw">log</span>(<span class="st">&quot;not a number&quot;</span>),</a>
+<a class="sourceLine" id="cb47-6" title="6">            <span class="dt">error =</span> <span class="cf">function</span>(e) { <span class="kw">send.email</span>(<span class="st">&quot;admin@home&quot;</span>, e)</a>
+<a class="sourceLine" id="cb47-7" title="7">            })</a></code></pre></div>
 <p>The console shows the log output then and the execution continues:</p>
-<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb48-1" data-line-number="1">ERROR [<span class="dv">2017-01-22</span> <span class="dv">22</span><span class="op">:</span><span class="dv">04</span><span class="op">:</span><span class="dv">56</span>] non<span class="op">-</span>numeric argument to mathematical <span class="cf">function</span></a>
-<a class="sourceLine" id="cb48-2" data-line-number="2">Compact call stack<span class="op">:</span></a>
-<a class="sourceLine" id="cb48-3" data-line-number="3"><span class="st">  </span><span class="dv">1</span> tryCatchLog_error_example.R<span class="co">#5: tryCatchLog(log(&quot;not a number&quot;), error = function(e) {</span></a>
-<a class="sourceLine" id="cb48-4" data-line-number="4">  <span class="dv">2</span> tryCatchLog.R<span class="co">#273: tryCatch(withCallingHandlers(expr, error = function(e) {</span></a>
-<a class="sourceLine" id="cb48-5" data-line-number="5">...</a></code></pre></div>
+<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb48-1" title="1">ERROR [<span class="dv">2017-01-22</span> <span class="dv">22</span><span class="op">:</span><span class="dv">04</span><span class="op">:</span><span class="dv">56</span>] non<span class="op">-</span>numeric argument to mathematical <span class="cf">function</span></a>
+<a class="sourceLine" id="cb48-2" title="2">Compact call stack<span class="op">:</span></a>
+<a class="sourceLine" id="cb48-3" title="3"><span class="st">  </span><span class="dv">1</span> tryCatchLog_error_example.R<span class="co">#5: tryCatchLog(log(&quot;not a number&quot;), error = function(e) {</span></a>
+<a class="sourceLine" id="cb48-4" title="4">  <span class="dv">2</span> tryCatchLog.R<span class="co">#273: tryCatch(withCallingHandlers(expr, error = function(e) {</span></a>
+<a class="sourceLine" id="cb48-5" title="5">...</a></code></pre></div>
 <p><strong>Note:</strong> <code>send.email</code> is a dummy function for demonstration purposes!</p>
 </div>
 <div id="how-to-change-the-logging-behaviour" class="section level2">
 <h2>How to change the logging behaviour</h2>
 <p>To log to a file instead of the console or to change the logging level you call the usual <code>futile.logger</code> functions:</p>
-<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb49-1" data-line-number="1">  <span class="kw">library</span>(futile.logger)</a>
-<a class="sourceLine" id="cb49-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb49-3" data-line-number="3">  <span class="kw">flog.appender</span>(<span class="kw">appender.file</span>(<span class="st">&quot;app.log&quot;</span>))</a>
-<a class="sourceLine" id="cb49-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb49-5" data-line-number="5">  <span class="kw">flog.threshold</span>(ERROR)    <span class="co"># TRACE, DEBUG, INFO, WARN, ERROR, FATAL</span></a>
-<a class="sourceLine" id="cb49-6" data-line-number="6"></a>
-<a class="sourceLine" id="cb49-7" data-line-number="7">  <span class="kw">try</span>(<span class="kw">log</span>(<span class="op">-</span><span class="dv">1</span>))             <span class="co"># the warning will not be logged!</span></a></code></pre></div>
+<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb49-1" title="1">  <span class="kw">library</span>(futile.logger)</a>
+<a class="sourceLine" id="cb49-2" title="2"></a>
+<a class="sourceLine" id="cb49-3" title="3">  <span class="kw">flog.appender</span>(<span class="kw">appender.file</span>(<span class="st">&quot;app.log&quot;</span>))</a>
+<a class="sourceLine" id="cb49-4" title="4"></a>
+<a class="sourceLine" id="cb49-5" title="5">  <span class="kw">flog.threshold</span>(ERROR)    <span class="co"># TRACE, DEBUG, INFO, WARN, ERROR, FATAL</span></a>
+<a class="sourceLine" id="cb49-6" title="6"></a>
+<a class="sourceLine" id="cb49-7" title="7">  <span class="kw">try</span>(<span class="kw">log</span>(<span class="op">-</span><span class="dv">1</span>))             <span class="co"># the warning will not be logged!</span></a></code></pre></div>
 <p>For more details about <code>futile.logger</code> see:</p>
 <p><a href="https://cran.r-project.org/package=futile.logger" class="uri">https://cran.r-project.org/package=futile.logger</a></p>
 </div>
@@ -819,57 +817,57 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <div id="enable-post-mortem-analysis" class="section level2">
 <h2>Enable post-mortem analysis</h2>
 <p><code>tryCatchLog</code> supports post-mortem analysis by creating dump files in case of errors:</p>
-<div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb50-1" data-line-number="1"><span class="kw">library</span>(tryCatchLog)</a>
-<a class="sourceLine" id="cb50-2" data-line-number="2">f &lt;-<span class="st"> </span><span class="cf">function</span>(value) {</a>
-<a class="sourceLine" id="cb50-3" data-line-number="3">  <span class="kw">log</span>(value)</a>
-<a class="sourceLine" id="cb50-4" data-line-number="4">}</a>
-<a class="sourceLine" id="cb50-5" data-line-number="5">a &lt;-<span class="st"> &quot;100&quot;</span></a>
-<a class="sourceLine" id="cb50-6" data-line-number="6"><span class="kw">tryLog</span>(<span class="kw">f</span>(a), <span class="dt">write.error.dump.file =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
-<div class="sourceCode" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb51-1" data-line-number="1">ERROR [<span class="dv">2016-12-12</span> <span class="dv">22</span><span class="op">:</span><span class="dv">29</span><span class="op">:</span><span class="dv">52</span>] non<span class="op">-</span>numeric argument to mathematical <span class="cf">function</span></a>
-<a class="sourceLine" id="cb51-2" data-line-number="2">Call stack environments dumped into file<span class="op">:</span><span class="st"> </span>dump_<span class="dv">20161212</span>_<span class="fl">222952.</span>rda</a>
-<a class="sourceLine" id="cb51-3" data-line-number="3">Compact call stack<span class="op">:</span></a>
-<a class="sourceLine" id="cb51-4" data-line-number="4"><span class="st">  </span><span class="dv">1</span> <span class="kw">source</span>(<span class="st">&quot;~/R_trainings/tryCatchLog/src/test.R&quot;</span>)</a>
-<a class="sourceLine" id="cb51-5" data-line-number="5">  <span class="dv">2</span> test.R<span class="co">#6: tryLog(f(a), write.error.dump.file = TRUE)</span></a>
-<a class="sourceLine" id="cb51-6" data-line-number="6">  <span class="dv">3</span> tryCatchLog.R<span class="co">#348: tryCatchLog(expr = expr, write.error.dump.file = write.error.dump.file, error = function(e) {</span></a>
-<a class="sourceLine" id="cb51-7" data-line-number="7">  <span class="dv">4</span> tryCatchLog.R<span class="co">#262: tryCatch(withCallingHandlers(expr, error = function(e) {</span></a>
-<a class="sourceLine" id="cb51-8" data-line-number="8">  <span class="dv">5</span> test.R<span class="co">#3: .handleSimpleError(function (e)</span></a>
-<a class="sourceLine" id="cb51-9" data-line-number="9">  ...</a></code></pre></div>
+<div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb50-1" title="1"><span class="kw">library</span>(tryCatchLog)</a>
+<a class="sourceLine" id="cb50-2" title="2">f &lt;-<span class="st"> </span><span class="cf">function</span>(value) {</a>
+<a class="sourceLine" id="cb50-3" title="3">  <span class="kw">log</span>(value)</a>
+<a class="sourceLine" id="cb50-4" title="4">}</a>
+<a class="sourceLine" id="cb50-5" title="5">a &lt;-<span class="st"> &quot;100&quot;</span></a>
+<a class="sourceLine" id="cb50-6" title="6"><span class="kw">tryLog</span>(<span class="kw">f</span>(a), <span class="dt">write.error.dump.file =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb51-1" title="1">ERROR [<span class="dv">2016-12-12</span> <span class="dv">22</span><span class="op">:</span><span class="dv">29</span><span class="op">:</span><span class="dv">52</span>] non<span class="op">-</span>numeric argument to mathematical <span class="cf">function</span></a>
+<a class="sourceLine" id="cb51-2" title="2">Call stack environments dumped into file<span class="op">:</span><span class="st"> </span>dump_<span class="dv">20161212</span>_<span class="fl">222952.</span>rda</a>
+<a class="sourceLine" id="cb51-3" title="3">Compact call stack<span class="op">:</span></a>
+<a class="sourceLine" id="cb51-4" title="4"><span class="st">  </span><span class="dv">1</span> <span class="kw">source</span>(<span class="st">&quot;~/R_trainings/tryCatchLog/src/test.R&quot;</span>)</a>
+<a class="sourceLine" id="cb51-5" title="5">  <span class="dv">2</span> test.R<span class="co">#6: tryLog(f(a), write.error.dump.file = TRUE)</span></a>
+<a class="sourceLine" id="cb51-6" title="6">  <span class="dv">3</span> tryCatchLog.R<span class="co">#348: tryCatchLog(expr = expr, write.error.dump.file = write.error.dump.file, error = function(e) {</span></a>
+<a class="sourceLine" id="cb51-7" title="7">  <span class="dv">4</span> tryCatchLog.R<span class="co">#262: tryCatch(withCallingHandlers(expr, error = function(e) {</span></a>
+<a class="sourceLine" id="cb51-8" title="8">  <span class="dv">5</span> test.R<span class="co">#3: .handleSimpleError(function (e)</span></a>
+<a class="sourceLine" id="cb51-9" title="9">  ...</a></code></pre></div>
 </div>
 <div id="start-a-post-mortem-analysis" class="section level2">
 <h2>Start a post-mortem analysis</h2>
 <p>Open a new R session and start the post-mortem analysis of the error:</p>
-<div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb52-1" data-line-number="1"><span class="kw">load</span>(<span class="st">&quot;dump_20161212_222952.rda&quot;</span>)    <span class="co"># load the dump into the global environment</span></a>
-<a class="sourceLine" id="cb52-2" data-line-number="2"><span class="kw">debugger</span>(last.dump)                 <span class="co"># start the post-mortem analysis</span></a></code></pre></div>
-<div class="sourceCode" id="cb53"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb53-1" data-line-number="1">Message<span class="op">:</span><span class="st">  </span>non<span class="op">-</span>numeric argument to mathematical functionAvailable environments had calls<span class="op">:</span></a>
-<a class="sourceLine" id="cb53-2" data-line-number="2"><span class="dv">1</span><span class="op">:</span><span class="st"> </span><span class="kw">source</span>(<span class="st">&quot;test.R&quot;</span>)</a>
-<a class="sourceLine" id="cb53-3" data-line-number="3">...</a>
-<a class="sourceLine" id="cb53-4" data-line-number="4"><span class="dv">5</span><span class="op">:</span><span class="st"> </span>test.R<span class="co">#6: tryLog(f(a), write.error.dump.file = TRUE)</span></a>
-<a class="sourceLine" id="cb53-5" data-line-number="5"><span class="dv">6</span><span class="op">:</span><span class="st"> </span>tryCatchLog.R<span class="co">#348: tryCatchLog(expr = expr, write.error.dump.file = dump.erro</span></a>
-<a class="sourceLine" id="cb53-6" data-line-number="6"><span class="dv">7</span><span class="op">:</span><span class="st"> </span>tryCatchLog.R<span class="co">#262: tryCatch(withCallingHandlers(expr, error = function(e) {</span></a>
-<a class="sourceLine" id="cb53-7" data-line-number="7">...</a>
-<a class="sourceLine" id="cb53-8" data-line-number="8"><span class="dv">12</span><span class="op">:</span><span class="st"> </span><span class="kw">f</span>(a)</a>
-<a class="sourceLine" id="cb53-9" data-line-number="9"><span class="dv">13</span><span class="op">:</span><span class="st"> </span>test.R<span class="co">#3: .handleSimpleError(function (e)</span></a>
-<a class="sourceLine" id="cb53-10" data-line-number="10"><span class="dv">14</span><span class="op">:</span><span class="st"> </span><span class="kw">h</span>(<span class="kw">simpleError</span>(msg, call))</a>
-<a class="sourceLine" id="cb53-11" data-line-number="11"></a>
-<a class="sourceLine" id="cb53-12" data-line-number="12">Enter an environment number, or <span class="dv">0</span> to exit</a>
-<a class="sourceLine" id="cb53-13" data-line-number="13">Selection<span class="op">:</span><span class="st"> </span><span class="er">&lt;</span>Cursor is waiting <span class="cf">for</span> your input here<span class="op">&gt;</span></a></code></pre></div>
+<div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb52-1" title="1"><span class="kw">load</span>(<span class="st">&quot;dump_20161212_222952.rda&quot;</span>)    <span class="co"># load the dump into the global environment</span></a>
+<a class="sourceLine" id="cb52-2" title="2"><span class="kw">debugger</span>(last.dump)                 <span class="co"># start the post-mortem analysis</span></a></code></pre></div>
+<div class="sourceCode" id="cb53"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb53-1" title="1">Message<span class="op">:</span><span class="st">  </span>non<span class="op">-</span>numeric argument to mathematical functionAvailable environments had calls<span class="op">:</span></a>
+<a class="sourceLine" id="cb53-2" title="2"><span class="dv">1</span><span class="op">:</span><span class="st"> </span><span class="kw">source</span>(<span class="st">&quot;test.R&quot;</span>)</a>
+<a class="sourceLine" id="cb53-3" title="3">...</a>
+<a class="sourceLine" id="cb53-4" title="4"><span class="dv">5</span><span class="op">:</span><span class="st"> </span>test.R<span class="co">#6: tryLog(f(a), write.error.dump.file = TRUE)</span></a>
+<a class="sourceLine" id="cb53-5" title="5"><span class="dv">6</span><span class="op">:</span><span class="st"> </span>tryCatchLog.R<span class="co">#348: tryCatchLog(expr = expr, write.error.dump.file = dump.erro</span></a>
+<a class="sourceLine" id="cb53-6" title="6"><span class="dv">7</span><span class="op">:</span><span class="st"> </span>tryCatchLog.R<span class="co">#262: tryCatch(withCallingHandlers(expr, error = function(e) {</span></a>
+<a class="sourceLine" id="cb53-7" title="7">...</a>
+<a class="sourceLine" id="cb53-8" title="8"><span class="dv">12</span><span class="op">:</span><span class="st"> </span><span class="kw">f</span>(a)</a>
+<a class="sourceLine" id="cb53-9" title="9"><span class="dv">13</span><span class="op">:</span><span class="st"> </span>test.R<span class="co">#3: .handleSimpleError(function (e)</span></a>
+<a class="sourceLine" id="cb53-10" title="10"><span class="dv">14</span><span class="op">:</span><span class="st"> </span><span class="kw">h</span>(<span class="kw">simpleError</span>(msg, call))</a>
+<a class="sourceLine" id="cb53-11" title="11"></a>
+<a class="sourceLine" id="cb53-12" title="12">Enter an environment number, or <span class="dv">0</span> to exit</a>
+<a class="sourceLine" id="cb53-13" title="13">Selection<span class="op">:</span><span class="st"> </span><span class="er">&lt;</span>Cursor is waiting <span class="cf">for</span> your input here<span class="op">&gt;</span></a></code></pre></div>
 <p>The function call #13 shows: The error was thrown in the file <code>test.R</code> at line #3: <code>log(value)</code></p>
 </div>
 <div id="post-mortem-debugging-examine-an-environment" class="section level2">
 <h2>Post-mortem debugging: Examine an environment</h2>
 <p>Switch into the environment of the function call #12 which called the function that throwed the error and examine the objects visible within this function:</p>
-<div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb54-1" data-line-number="1">Enter an environment number, or <span class="dv">0</span> to exit</a>
-<a class="sourceLine" id="cb54-2" data-line-number="2">Selection<span class="op">:</span><span class="st"> </span><span class="dv">12</span></a>
-<a class="sourceLine" id="cb54-3" data-line-number="3">Browsing <span class="cf">in</span> the environment with call<span class="op">:</span></a>
-<a class="sourceLine" id="cb54-4" data-line-number="4"><span class="st">   </span><span class="kw">f</span>(a)</a>
-<a class="sourceLine" id="cb54-5" data-line-number="5">Called from<span class="op">:</span><span class="st"> </span><span class="kw">debugger.look</span>(ind)</a>
-<a class="sourceLine" id="cb54-6" data-line-number="6">Browse[<span class="dv">1</span>]<span class="op">&gt;</span><span class="st"> </span><span class="kw">ls</span>()</a>
-<a class="sourceLine" id="cb54-7" data-line-number="7">[<span class="dv">1</span>] <span class="st">&quot;value&quot;</span></a>
-<a class="sourceLine" id="cb54-8" data-line-number="8">Browse[<span class="dv">1</span>]<span class="op">&gt;</span><span class="st"> </span>value</a>
-<a class="sourceLine" id="cb54-9" data-line-number="9">[<span class="dv">1</span>] <span class="st">&quot;100&quot;</span></a>
-<a class="sourceLine" id="cb54-10" data-line-number="10">Browse[<span class="dv">1</span>]<span class="op">&gt;</span><span class="st"> </span><span class="kw">typeof</span>(value)</a>
-<a class="sourceLine" id="cb54-11" data-line-number="11">[<span class="dv">1</span>] <span class="st">&quot;character&quot;</span></a>
-<a class="sourceLine" id="cb54-12" data-line-number="12">Browse[<span class="dv">1</span>]<span class="op">&gt;</span></a></code></pre></div>
+<div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb54-1" title="1">Enter an environment number, or <span class="dv">0</span> to exit</a>
+<a class="sourceLine" id="cb54-2" title="2">Selection<span class="op">:</span><span class="st"> </span><span class="dv">12</span></a>
+<a class="sourceLine" id="cb54-3" title="3">Browsing <span class="cf">in</span> the environment with call<span class="op">:</span></a>
+<a class="sourceLine" id="cb54-4" title="4"><span class="st">   </span><span class="kw">f</span>(a)</a>
+<a class="sourceLine" id="cb54-5" title="5">Called from<span class="op">:</span><span class="st"> </span><span class="kw">debugger.look</span>(ind)</a>
+<a class="sourceLine" id="cb54-6" title="6">Browse[<span class="dv">1</span>]<span class="op">&gt;</span><span class="st"> </span><span class="kw">ls</span>()</a>
+<a class="sourceLine" id="cb54-7" title="7">[<span class="dv">1</span>] <span class="st">&quot;value&quot;</span></a>
+<a class="sourceLine" id="cb54-8" title="8">Browse[<span class="dv">1</span>]<span class="op">&gt;</span><span class="st"> </span>value</a>
+<a class="sourceLine" id="cb54-9" title="9">[<span class="dv">1</span>] <span class="st">&quot;100&quot;</span></a>
+<a class="sourceLine" id="cb54-10" title="10">Browse[<span class="dv">1</span>]<span class="op">&gt;</span><span class="st"> </span><span class="kw">typeof</span>(value)</a>
+<a class="sourceLine" id="cb54-11" title="11">[<span class="dv">1</span>] <span class="st">&quot;character&quot;</span></a>
+<a class="sourceLine" id="cb54-12" title="12">Browse[<span class="dv">1</span>]<span class="op">&gt;</span></a></code></pre></div>
 <p>By looking at the (function argument) variable <code>value</code> it is easy to identify the reason for the error: <strong>The passed value “100” had the wrong data type!</strong></p>
 <p><em>You can exit the debugger now with “Q” (or “f” followed by “0”) and fix the bug.</em></p>
 </div>
@@ -891,10 +889,10 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <div id="trycatchlog" class="section level2">
 <h2>tryCatchLog()</h2>
 <p>Function signature:</p>
-<div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb55-1" data-line-number="1"><span class="kw">tryCatchLog</span>(expr, ..., <span class="dt">finally =</span> <span class="ot">NULL</span>,</a>
-<a class="sourceLine" id="cb55-2" data-line-number="2">  <span class="dt">write.error.dump.file =</span> <span class="kw">getOption</span>(<span class="st">&quot;tryCatchLog.write.error.dump.file&quot;</span>, <span class="ot">FALSE</span>),</a>
-<a class="sourceLine" id="cb55-3" data-line-number="3">  <span class="dt">silent.warnings       =</span> <span class="kw">getOption</span>(<span class="st">&quot;tryCatchLog.silent.warnings&quot;</span>, <span class="ot">FALSE</span>),</a>
-<a class="sourceLine" id="cb55-4" data-line-number="4">  <span class="dt">silent.messages       =</span> <span class="kw">getOption</span>(<span class="st">&quot;tryCatchLog.silent.messages&quot;</span>, <span class="ot">FALSE</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb55-1" title="1"><span class="kw">tryCatchLog</span>(expr, ..., <span class="dt">finally =</span> <span class="ot">NULL</span>,</a>
+<a class="sourceLine" id="cb55-2" title="2">  <span class="dt">write.error.dump.file =</span> <span class="kw">getOption</span>(<span class="st">&quot;tryCatchLog.write.error.dump.file&quot;</span>, <span class="ot">FALSE</span>),</a>
+<a class="sourceLine" id="cb55-3" title="3">  <span class="dt">silent.warnings       =</span> <span class="kw">getOption</span>(<span class="st">&quot;tryCatchLog.silent.warnings&quot;</span>, <span class="ot">FALSE</span>),</a>
+<a class="sourceLine" id="cb55-4" title="4">  <span class="dt">silent.messages       =</span> <span class="kw">getOption</span>(<span class="st">&quot;tryCatchLog.silent.messages&quot;</span>, <span class="ot">FALSE</span>))</a></code></pre></div>
 <p>This function evaluates the expression in <code>expr</code> and passes all condition handlers in <code>...</code> to <code>tryCatch</code> as-is while error, warning and message conditions are logged together with the function call stack (including file names and line numbers).</p>
 <p>The expression in <code>finally</code> is always evaluated at the end.</p>
 <p>Warnings and messages can be “silenced” (only logged but not propagated to the caller) using the <code>silent.*</code> parameters.</p>
@@ -903,10 +901,10 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <div id="trylog" class="section level2">
 <h2>tryLog()</h2>
 <p>Function signature:</p>
-<div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb56-1" data-line-number="1"><span class="kw">tryLog</span>(expr,</a>
-<a class="sourceLine" id="cb56-2" data-line-number="2">  <span class="dt">write.error.dump.file =</span> <span class="kw">getOption</span>(<span class="st">&quot;tryCatchLog.write.error.dump.file&quot;</span>, <span class="ot">FALSE</span>),</a>
-<a class="sourceLine" id="cb56-3" data-line-number="3">  <span class="dt">silent.warnings       =</span> <span class="kw">getOption</span>(<span class="st">&quot;tryCatchLog.silent.warnings&quot;</span>, <span class="ot">FALSE</span>),</a>
-<a class="sourceLine" id="cb56-4" data-line-number="4">  <span class="dt">silent.messages       =</span> <span class="kw">getOption</span>(<span class="st">&quot;tryCatchLog.silent.messages&quot;</span>, <span class="ot">FALSE</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb56-1" title="1"><span class="kw">tryLog</span>(expr,</a>
+<a class="sourceLine" id="cb56-2" title="2">  <span class="dt">write.error.dump.file =</span> <span class="kw">getOption</span>(<span class="st">&quot;tryCatchLog.write.error.dump.file&quot;</span>, <span class="ot">FALSE</span>),</a>
+<a class="sourceLine" id="cb56-3" title="3">  <span class="dt">silent.warnings       =</span> <span class="kw">getOption</span>(<span class="st">&quot;tryCatchLog.silent.warnings&quot;</span>, <span class="ot">FALSE</span>),</a>
+<a class="sourceLine" id="cb56-4" title="4">  <span class="dt">silent.messages       =</span> <span class="kw">getOption</span>(<span class="st">&quot;tryCatchLog.silent.messages&quot;</span>, <span class="ot">FALSE</span>))</a></code></pre></div>
 <p>This function is a short version of <code>tryCatchLog()</code> that traps any errors that occur during the evaluation of the expression <code>expr</code> without stopping the execution of the script (similar to <code>try</code> in R). Errors, warnings and messages are logged.</p>
 <p>In contrast to <code>tryCatchLog()</code> it returns an object of the class “try-error” in case of an error and continues after the <code>tryLog</code> expression. Therefore <code>tryLog</code> does not support the <code>error</code> and <code>finally</code> parameters for passing custom handler functions.</p>
 <p>The default values of some parameters can be set globally via <code>options</code> to avoid passing the same parameter values in each call and to support easy reconfiguration for all calls without changing the code.</p>
@@ -914,21 +912,21 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <div id="change-global-options-of-trycatchlog" class="section level2">
 <h2>Change global options of <code>tryCatchLog</code></h2>
 <p>The default values of many options can be changed globally by configuring them once to reduce lengthy function calls later and support easy reconfiguration for all calls without changing the code:</p>
-<div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb57-1" data-line-number="1"><span class="co"># Initialize your own default values globally for tryLog and tryCatchLog</span></a>
-<a class="sourceLine" id="cb57-2" data-line-number="2"><span class="kw">options</span>(<span class="dt">tryCatchLog.write.error.dump.file =</span> <span class="ot">FALSE</span>)</a>
-<a class="sourceLine" id="cb57-3" data-line-number="3"><span class="kw">options</span>(<span class="dt">tryCatchLog.silent.messages       =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb57-4" data-line-number="4"><span class="kw">options</span>(<span class="dt">tryCatchLog.silent.warnings       =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb57-5" data-line-number="5"></a>
-<a class="sourceLine" id="cb57-6" data-line-number="6">test &lt;-<span class="st"> </span><span class="cf">function</span>() {</a>
-<a class="sourceLine" id="cb57-7" data-line-number="7">  <span class="kw">message</span>(<span class="st">&quot;hello&quot;</span>)</a>
-<a class="sourceLine" id="cb57-8" data-line-number="8">  <span class="kw">warning</span>(<span class="st">&quot;a warning&quot;</span>)</a>
-<a class="sourceLine" id="cb57-9" data-line-number="9">}</a>
-<a class="sourceLine" id="cb57-10" data-line-number="10"></a>
-<a class="sourceLine" id="cb57-11" data-line-number="11"><span class="co"># Use your own default values by ommiting those parameters...</span></a>
-<a class="sourceLine" id="cb57-12" data-line-number="12"><span class="kw">tryLog</span>(<span class="kw">f</span>())</a>
-<a class="sourceLine" id="cb57-13" data-line-number="13"></a>
-<a class="sourceLine" id="cb57-14" data-line-number="14"><span class="co"># .. instead of the longer version which passes each parameter again and again</span></a>
-<a class="sourceLine" id="cb57-15" data-line-number="15"><span class="kw">tryLog</span>(<span class="kw">f</span>(), <span class="dt">silent.warnings=</span><span class="ot">TRUE</span>, <span class="dt">silent.messages=</span><span class="ot">TRUE</span>, <span class="dt">write.error.dump.file=</span><span class="ot">FALSE</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb57"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb57-1" title="1"><span class="co"># Initialize your own default values globally for tryLog and tryCatchLog</span></a>
+<a class="sourceLine" id="cb57-2" title="2"><span class="kw">options</span>(<span class="dt">tryCatchLog.write.error.dump.file =</span> <span class="ot">FALSE</span>)</a>
+<a class="sourceLine" id="cb57-3" title="3"><span class="kw">options</span>(<span class="dt">tryCatchLog.silent.messages       =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb57-4" title="4"><span class="kw">options</span>(<span class="dt">tryCatchLog.silent.warnings       =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb57-5" title="5"></a>
+<a class="sourceLine" id="cb57-6" title="6">test &lt;-<span class="st"> </span><span class="cf">function</span>() {</a>
+<a class="sourceLine" id="cb57-7" title="7">  <span class="kw">message</span>(<span class="st">&quot;hello&quot;</span>)</a>
+<a class="sourceLine" id="cb57-8" title="8">  <span class="kw">warning</span>(<span class="st">&quot;a warning&quot;</span>)</a>
+<a class="sourceLine" id="cb57-9" title="9">}</a>
+<a class="sourceLine" id="cb57-10" title="10"></a>
+<a class="sourceLine" id="cb57-11" title="11"><span class="co"># Use your own default values by ommiting those parameters...</span></a>
+<a class="sourceLine" id="cb57-12" title="12"><span class="kw">tryLog</span>(<span class="kw">f</span>())</a>
+<a class="sourceLine" id="cb57-13" title="13"></a>
+<a class="sourceLine" id="cb57-14" title="14"><span class="co"># .. instead of the longer version which passes each parameter again and again</span></a>
+<a class="sourceLine" id="cb57-15" title="15"><span class="kw">tryLog</span>(<span class="kw">f</span>(), <span class="dt">silent.warnings=</span><span class="ot">TRUE</span>, <span class="dt">silent.messages=</span><span class="ot">TRUE</span>, <span class="dt">write.error.dump.file=</span><span class="ot">FALSE</span>)</a></code></pre></div>
 </div>
 </div>
 <div id="trycatchlog-best-practices" class="section level1">
@@ -936,16 +934,16 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <div id="easiest-way-to-add-logging-of-all-conditions" class="section level2">
 <h2>Easiest way to add logging of all conditions</h2>
 <p>Just wrap the call to the main function or main script with <code>tryCatchLog()</code>:</p>
-<div class="sourceCode" id="cb58"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb58-1" data-line-number="1"><span class="kw">library</span>(futile.logger)</a>
-<a class="sourceLine" id="cb58-2" data-line-number="2"><span class="kw">library</span>(tryCatchLog)</a>
-<a class="sourceLine" id="cb58-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb58-4" data-line-number="4"><span class="kw">options</span>(<span class="dt">keep.source =</span> <span class="ot">TRUE</span>)        <span class="co"># source code file name and line number tracking</span></a>
-<a class="sourceLine" id="cb58-5" data-line-number="5"><span class="kw">options</span>(<span class="st">&quot;tryCatchLog.write.error.dump.file&quot;</span> =<span class="st"> </span><span class="ot">TRUE</span>) <span class="co"># dump for post-mortem analysis</span></a>
-<a class="sourceLine" id="cb58-6" data-line-number="6"></a>
-<a class="sourceLine" id="cb58-7" data-line-number="7"><span class="kw">flog.appender</span>(<span class="kw">appender.file</span>(<span class="st">&quot;my_app.log&quot;</span>))  <span class="co"># to log into a file instead of console</span></a>
-<a class="sourceLine" id="cb58-8" data-line-number="8"><span class="kw">flog.threshold</span>(INFO)    <span class="co"># TRACE, DEBUG, INFO, WARN, ERROR, FATAL</span></a>
-<a class="sourceLine" id="cb58-9" data-line-number="9"></a>
-<a class="sourceLine" id="cb58-10" data-line-number="10"><span class="kw">tryCatchLog</span>(<span class="kw">source</span>(<span class="st">&quot;your_main_script.R&quot;</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb58"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb58-1" title="1"><span class="kw">library</span>(futile.logger)</a>
+<a class="sourceLine" id="cb58-2" title="2"><span class="kw">library</span>(tryCatchLog)</a>
+<a class="sourceLine" id="cb58-3" title="3"></a>
+<a class="sourceLine" id="cb58-4" title="4"><span class="kw">options</span>(<span class="dt">keep.source =</span> <span class="ot">TRUE</span>)        <span class="co"># source code file name and line number tracking</span></a>
+<a class="sourceLine" id="cb58-5" title="5"><span class="kw">options</span>(<span class="st">&quot;tryCatchLog.write.error.dump.file&quot;</span> =<span class="st"> </span><span class="ot">TRUE</span>) <span class="co"># dump for post-mortem analysis</span></a>
+<a class="sourceLine" id="cb58-6" title="6"></a>
+<a class="sourceLine" id="cb58-7" title="7"><span class="kw">flog.appender</span>(<span class="kw">appender.file</span>(<span class="st">&quot;my_app.log&quot;</span>))  <span class="co"># to log into a file instead of console</span></a>
+<a class="sourceLine" id="cb58-8" title="8"><span class="kw">flog.threshold</span>(INFO)    <span class="co"># TRACE, DEBUG, INFO, WARN, ERROR, FATAL</span></a>
+<a class="sourceLine" id="cb58-9" title="9"></a>
+<a class="sourceLine" id="cb58-10" title="10"><span class="kw">tryCatchLog</span>(<span class="kw">source</span>(<span class="st">&quot;your_main_script.R&quot;</span>))</a></code></pre></div>
 </div>
 <div id="enabling-source-code-references-file-names-and-line-numbers" class="section level2">
 <h2>Enabling source code references (file names and line numbers)</h2>
