@@ -5,6 +5,31 @@ For the conventions for files NEWS and ChangeLog in the GNU project see
 https://www.gnu.org/prep/standards/standards.html#Documentation
 -->
 
+## Version 1.3.1 (Oct 24, 2021) for CRAN
+
+* Fix CRAN check note for `inst/doc/tryCatchLog-intro.html` reported by win-builder on R-devel:
+  Found the following (possibly) invalid URLs:
+  URL: http://www.biostat.jhsph.edu/~rpeng/docs/R-debug-tools.pdf
+  (moved to https://www.biostat.jhsph.edu/~rpeng/docs/R-debug-tools.pdf)
+  
+
+## Version 1.3.0 (Sept 30, 2021)
+
+* Fix critical bug #68: Bad condition logging performance with bug data sizes
+  (https://github.com/aryoda/tryCatchLog/issues/68)
+* Limit the maximum number of source code rows printed in the full call stack per call to 10
+  (was unlimited before which cause bug #68 if large data in arguments was printed too)
+* Add option `tryCatchLog.max.lines.per.call` to change the maximum number of source code rows
+  printed in the full call stack per call
+
+## Version 1.2.5 (Sept 06, 2021)
+
+* Implement feature request #62: Optional logging of conditions via the new `logged.conditions` argument
+  (https://github.com/aryoda/tryCatchLog/issues/62). Conditions are now no longer logged by default
+  to avoid flooding the log output.
+  
+  Many thanks to Valerian Wrobel for this contribution!
+
 ## Version 1.2.4 (May 21, 2021) for CRAN
 
 * Fix redirected links found by CRAN precheck:
@@ -12,12 +37,14 @@ https://www.gnu.org/prep/standards/standards.html#Documentation
     URL: https://rstudio.com/products/rstudio/ (moved to https://www.rstudio.com/products/rstudio/)
     From: inst/doc/tryCatchLog-intro.html
 
+
 ## Version 1.2.3 (May 16, 2021) - submitted at CRAN but rejected
 
 * Fix bug #64: Unit tests fail on R-devel (test_build_log_entry.R and test_build_log_output).
   Many thanks to Brodie Gaslam to find and help fixing this bug!
 * Extend the maximum value of the `maxwidth argument of limitedLabels() from 1000 to 2000.
   This was required for a decent fix of bug #64.
+
 
 ## Version 1.2.2 (Jan. 8, 2021)
 
